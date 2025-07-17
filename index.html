@@ -1,0 +1,1010 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PrintCap - Drukwerk & Capaciteit Marketplace</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f7fafc; }
+        .card { background-color: white; border-radius: 0.5rem; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); padding: 1.5rem; transition: box-shadow 0.3s ease-in-out; }
+        .card-clickable { cursor: pointer; }
+        .card-clickable:hover { box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); }
+        .btn { padding: 0.5rem 1rem; border-radius: 0.375rem; font-weight: 600; transition: background-color 0.2s; cursor: pointer; }
+        .btn:disabled { background-color: #a0aec0; cursor: not-allowed; }
+        .btn-primary { background-color: #2d3748; color: white; }
+        .btn-primary:hover:not(:disabled) { background-color: #1a202c; }
+        .btn-secondary { background-color: #e2e8f0; color: #2d3748; }
+        .btn-secondary:hover { background-color: #cbd5e0; }
+        .btn-danger { background-color: #e53e3e; color: white; }
+        .btn-danger:hover { background-color: #c53030; }
+        .link { color: #2d3748; text-decoration: underline; cursor: pointer; }
+        .status-badge { display: inline-block; padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; }
+        .status-quoting { background-color: #f59e0b; color: white; }
+        .status-in_production { background-color: #3b82f6; color: white; }
+        .status-completed { background-color: #22c55e; color: white; }
+        .status-offered { background-color: #8b5cf6; color: white; }
+        .status-accepted { background-color: #22c55e; color: white; }
+        .status-rejected { background-color: #ef4444; color: white; }
+        .star-rating .star { color: #d1d5db; cursor: pointer; font-size: 2rem; background: none; border: none; padding: 0; }
+        .star-rating .star.selected { color: #f59e0b; }
+    </style>
+    <link rel="stylesheet" href="https://rsms.me/inter/inter.css">
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/jwt-decode@3.1.2/build/jwt-decode.js"></script>
+</head>
+<body>
+    <div id="root"></div>
+    <script type="text/babel">
+        const { useState, useEffect, useCallback, useRef } = React;
+        const ReactDOM = window.ReactDOM;
+        
+        const API_BASE_URL = 'http://localhost:3001/api';
+
+        const apiRequest = async (endpoint, method = 'GET', body = null) => {
+            const headers = { 'Content-Type': 'application/json' };
+            const token = localStorage.getItem('printcap_token');
+            if (token) headers['Authorization'] = `Bearer ${token}`;
+            const config = { method, headers };
+            if (body) config.body = JSON.stringify(body);
+            try {
+                const response = await fetch(`${API_BASE_URL}${endpoint}`, config);
+                const data = await response.json();
+                if (!response.ok) throw new Error(data.error || 'Er is een fout opgetreden.');
+                return data;
+            } catch (error) {
+                console.error(`API Fout op ${endpoint}:`, error);
+                if (error.message.includes('Failed to fetch')) throw new Error('Kon geen verbinding maken met de API server.');
+                throw error;
+            }
+        };
+
+        const App = () => {
+            const [isLoggedIn, setIsLoggedIn] = useState(false);
+            const [currentUser, setCurrentUser] = useState(null);
+            const [currentView, setCurrentView] = useState('home');
+            const [viewProps, setViewProps] = useState({});
+            const [notification, setNotification] = useState({ message: '', type: '' });
+
+            const navigateTo = (view, param = null) => {
+                let newHash = view;
+                if (param) newHash += `/${param}`;
+                window.location.hash = newHash;
+            }
+
+            const parseRoute = useCallback(() => {
+                const hash = window.location.hash.substring(1);
+                const [path, param] = hash.split('/');
+                
+                if (path === 'verify' && param) { setCurrentView('verify-email'); setViewProps({ token: param }); } 
+                else if (path === 'profile' && param) { setCurrentView('public-profile'); setViewProps({ userId: param }); } 
+                else if (path === 'job-details' && param) { setCurrentView('job-details'); setViewProps({ jobId: param }); }
+                else if (path === 'submit-quote' && param) { setCurrentView('submit-quote'); setViewProps({ jobId: param }); }
+                else if (path === 'production-details' && param) { setCurrentView('production-details'); setViewProps({ jobId: param }); }
+                else if (path === 'offer-details' && param) { setCurrentView('offer-details'); setViewProps({ offerId: param }); }
+                else if(path) { setCurrentView(path); }
+                else { setCurrentView('home'); }
+            }, []);
+
+            const handleLogin = (token, user, showWelcomeNotification = true) => {
+                localStorage.setItem('printcap_token', token);
+                setIsLoggedIn(true);
+                setCurrentUser(user);
+                const targetView = user.role === 'admin' ? 'admin-dashboard' : 'dashboard';
+                navigateTo(targetView);
+                if (showWelcomeNotification) showNotification('Succesvol ingelogd!');
+            };
+
+            const handleLogout = () => {
+                localStorage.removeItem('printcap_token');
+                setIsLoggedIn(false);
+                setCurrentUser(null);
+                navigateTo('home');
+                showNotification('U bent uitgelogd.', 'info');
+            };
+
+            useEffect(() => {
+                window.addEventListener('hashchange', parseRoute);
+                const token = localStorage.getItem('printcap_token');
+                if (token) {
+                    try {
+                        const decodedUser = jwt_decode(token);
+                        if (decodedUser.exp * 1000 > Date.now()) {
+                            setIsLoggedIn(true);
+                            setCurrentUser(decodedUser);
+                            parseRoute(); 
+                        } else { handleLogout(); }
+                    } catch (e) { handleLogout(); }
+                } else { parseRoute(); }
+                return () => window.removeEventListener('hashchange', parseRoute);
+            }, []);
+            
+            const showNotification = useCallback((message, type = 'success', duration = 3000) => {
+                setNotification({ message, type });
+                setTimeout(() => setNotification({ message: '', type: '' }), duration);
+            }, []);
+            
+            const renderView = () => {
+                switch (currentView) {
+                    case 'home': return <Home navigateTo={navigateTo} />;
+                    case 'login': return <Login handleLogin={handleLogin} showNotification={showNotification} navigateTo={navigateTo} />;
+                    case 'register': return <Register showNotification={showNotification} navigateTo={navigateTo} />;
+                    case 'profile': return <ProfilePage currentUser={currentUser} showNotification={showNotification} />;
+                    case 'public-profile': return <PublicProfilePage {...viewProps} showNotification={showNotification} navigateTo={navigateTo}/>;
+                    case 'verify-email': return <VerifyEmailPage {...viewProps} showNotification={showNotification} navigateTo={navigateTo} />;
+                    case 'dashboard': return <Dashboard currentUser={currentUser} navigateTo={navigateTo} />;
+                    case 'admin-dashboard': return <AdminDashboard showNotification={showNotification} />;
+                    case 'create-job': return <CreateJob navigateTo={navigateTo} showNotification={showNotification} />;
+                    case 'job-marketplace': return <JobMarketplace navigateTo={navigateTo} showNotification={showNotification} />;
+                    case 'quote-requests': return <QuoteRequests navigateTo={navigateTo} showNotification={showNotification} />;
+                    case 'submit-quote': return <SubmitQuote {...viewProps} navigateTo={navigateTo} showNotification={showNotification} />;
+                    case 'my-jobs': return <MyJobs navigateTo={navigateTo} showNotification={showNotification} />;
+                    case 'job-details': return <JobDetails {...viewProps} navigateTo={navigateTo} showNotification={showNotification} currentUser={currentUser} />;
+                    case 'my-productions': return <MyProductions navigateTo={navigateTo} showNotification={showNotification} />;
+                    case 'production-details': return <ProductionJobDetails {...viewProps} navigateTo={navigateTo} showNotification={showNotification} />;
+                    case 'my-submitted-quotes': return <MySubmittedQuotes navigateTo={navigateTo} showNotification={showNotification} />;
+                    case 'offer-capacity': return <OfferCapacity navigateTo={navigateTo} showNotification={showNotification} />;
+                    case 'my-offers': return <MyOffers currentUser={currentUser} navigateTo={navigateTo} showNotification={showNotification} />;
+                    case 'offer-details': return <OfferDetails {...viewProps} showNotification={showNotification} navigateTo={navigateTo} currentUser={currentUser} />;
+                    default: return <Home navigateTo={navigateTo} />;
+                }
+            };
+
+            return (
+                <div className="min-h-screen">
+                    <Header isLoggedIn={isLoggedIn} navigateTo={navigateTo} handleLogout={handleLogout} currentUser={currentUser} />
+                    {notification.message && <Notification message={notification.message} type={notification.type} />}
+                    <main className="container mx-auto p-4 md:p-6">{renderView()}</main>
+                </div>
+            );
+        };
+        
+        const Notification = ({ message, type }) => {
+            const baseClasses = "p-4 mb-4 mx-auto max-w-4xl rounded-md text-white";
+            const typeClasses = { success: "bg-green-500", error: "bg-red-500", info: "bg-blue-500" };
+            return <div className={`${baseClasses} ${typeClasses[type] || typeClasses.info}`}>{message}</div>;
+        };
+
+        const Header = ({ isLoggedIn, navigateTo, handleLogout, currentUser }) => {
+            return (
+                <header className="bg-white shadow-md p-4">
+                    <div className="container mx-auto flex justify-between items-center">
+                        <h1 className="text-3xl font-bold text-gray-800 cursor-pointer" onClick={() => navigateTo(isLoggedIn ? 'dashboard' : 'home')}>PrintCap</h1>
+                        <nav className="flex items-center gap-4">
+                            {isLoggedIn ? (
+                                <>
+                                    <button onClick={() => navigateTo('dashboard')} className="text-gray-700 hover:text-black">Dashboard</button>
+                                    <button onClick={() => navigateTo('job-marketplace')} className="text-gray-700 hover:text-black">Marktplaats</button>
+                                    <div className="relative group inline-block pb-4">
+                                        <button className="text-gray-700 hover:text-black py-2 px-2">Mijn Werk</button>
+                                        <div className="absolute left-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-20 hidden group-hover:block">
+                                            <a href="#my-jobs" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Mijn Opdrachten</a>
+                                            <a href="#my-offers" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Mijn Aanbod</a>
+                                            <a href="#quote-requests" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Offerteaanvragen</a>
+                                            <a href="#my-submitted-quotes" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Ingediende Offertes</a>
+                                            <a href="#my-productions" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Mijn Producties</a>
+                                        </div>
+                                    </div>
+                                    <div className="relative group inline-block pb-4">
+                                        <button className="text-sm text-gray-600 py-2 px-4 rounded-md">
+                                            Welkom, <strong>{currentUser?.bedrijfsnaam}</strong>
+                                        </button>
+                                        <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-20 hidden group-hover:block">
+                                            <a href="#profile" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Mijn Profiel</a>
+                                            <a href="#" onClick={handleLogout} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Uitloggen</a>
+                                        </div>
+                                    </div>
+                                </>
+                            ) : (
+                                <button onClick={() => navigateTo('login')} className="btn btn-primary">Inloggen</button>
+                            )}
+                        </nav>
+                    </div>
+                </header>
+            );
+        };
+        
+        const StatusBadge = ({ status }) => {
+             const statusClasses = {
+                quoting: 'status-quoting', in_production: 'status-in_production', completed: 'status-completed',
+                offered: 'status-quoting', accepted: 'status-completed', rejected: 'status-rejected'
+            };
+            const statusText = {
+                quoting: 'Offertes Verzamelen', in_production: 'In Productie', completed: 'Voltooid',
+                offered: 'In behandeling', accepted: 'Geaccepteerd', rejected: 'Afgewezen'
+            };
+            return <span className={`status-badge ${statusClasses[status] || 'bg-gray-400'}`}>{statusText[status] || status}</span>
+        };
+
+        const StarRating = ({ rating, setRating }) => {
+            const [hover, setHover] = useState(0);
+            return (
+                <div className="star-rating">
+                    {[...Array(5)].map((star, index) => {
+                        index += 1;
+                        return (
+                            <button
+                                type="button"
+                                key={index}
+                                className={`star ${index <= (hover || rating) ? 'selected' : ''}`}
+                                onClick={() => setRating(index)}
+                                onMouseEnter={() => setHover(index)}
+                                onMouseLeave={() => setHover(rating)}
+                            >
+                                <span className="star-inner">&#9733;</span>
+                            </button>
+                        );
+                    })}
+                </div>
+            );
+        };
+
+        const Home = ({ navigateTo }) => (
+            <div className="text-center p-10 bg-white rounded-lg shadow-lg mt-10">
+                <h2 className="text-4xl font-bold mb-4">Dé Marketplace voor Drukwerk en Capaciteit</h2>
+                <p className="text-gray-600 mb-8">Plaats een opdracht en ontvang offertes, of bied uw overcapaciteit aan.</p>
+                <button onClick={() => navigateTo('login')} className="btn btn-primary btn-lg">Begin Vandaag</button>
+            </div>
+        );
+
+        const Login = ({ handleLogin, showNotification, navigateTo }) => {
+            const [email, setEmail] = useState('');
+            const [password, setPassword] = useState('');
+            const handleSubmit = async (e) => {
+                e.preventDefault();
+                try {
+                    const data = await apiRequest('/auth/login', 'POST', { email, password });
+                    handleLogin(data.token, data.user, true);
+                } catch (error) { showNotification(error.message, 'error'); }
+            };
+            return (
+                <div className="max-w-sm mx-auto mt-10">
+                    <form onSubmit={handleSubmit} className="card">
+                        <h2 className="text-2xl font-bold text-center mb-6">Inloggen</h2>
+                        <div className="mb-4"><label className="block text-gray-700 mb-2">Emailadres</label><input type="email" value={email} onChange={e => setEmail(e.target.value)} className="w-full p-2 border rounded-md" required /></div>
+                        <div className="mb-6"><label className="block text-gray-700 mb-2">Wachtwoord</label><input type="password" value={password} onChange={e => setPassword(e.target.value)} className="w-full p-2 border rounded-md" required/></div>
+                        <button type="submit" className="w-full btn btn-primary">Login</button>
+                        <p className="text-center mt-4 text-sm text-gray-600">Nog geen account? <span onClick={() => navigateTo('register')} className="font-semibold link">Registreer hier</span></p>
+                    </form>
+                </div>
+            );
+        };
+
+        const Register = ({ showNotification, navigateTo }) => {
+            const [formData, setFormData] = useState({ bedrijfsnaam: '', email: '', password: '', kvk: '' });
+            const [errors, setErrors] = useState({});
+            const validateField = (name, value) => {
+                switch(name) {
+                    case 'bedrijfsnaam': return value ? '' : 'Bedrijfsnaam is verplicht.';
+                    case 'email': return /\S+@\S+\.\S+/.test(value) ? '' : 'Voer een geldig e-mailadres in.';
+                    case 'password': return value.length >= 8 ? '' : 'Wachtwoord moet minimaal 8 tekens bevatten.';
+                    case 'kvk': return /^\d{8}$/.test(value) ? '' : 'KvK-nummer moet uit 8 cijfers bestaan.';
+                    default: return '';
+                }
+            };
+            const handleChange = (e) => {
+                const { name, value } = e.target;
+                setFormData(prev => ({ ...prev, [name]: value }));
+                if (errors[name]) { setErrors(prev => ({ ...prev, [name]: validateField(name, value) })); }
+            };
+            const handleBlur = (e) => {
+                const { name, value } = e.target;
+                setErrors(prev => ({ ...prev, [name]: validateField(name, value) }));
+            };
+            const handleSubmit = async (e) => {
+                e.preventDefault();
+                const formErrors = Object.keys(formData).reduce((acc, key) => {
+                    const error = validateField(key, formData[key]);
+                    if (error) acc[key] = error;
+                    return acc;
+                }, {});
+                if (Object.keys(formErrors).length > 0) { setErrors(formErrors); return; }
+                try {
+                    const data = await apiRequest('/auth/register', 'POST', formData);
+                    showNotification(data.message, 'info', 8000);
+                    navigateTo('login');
+                } catch (error) { showNotification(error.message, 'error'); }
+            };
+            return (
+                <div className="max-w-2xl mx-auto mt-10">
+                    <form onSubmit={handleSubmit} className="card" noValidate>
+                        <h2 className="text-2xl font-bold text-center mb-6">Account Registreren</h2>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div><label className="block text-gray-700 mb-2">Bedrijfsnaam*</label><input type="text" name="bedrijfsnaam" value={formData.bedrijfsnaam} onChange={handleChange} onBlur={handleBlur} className={`w-full p-2 border rounded-md ${errors.bedrijfsnaam ? 'border-red-500' : 'border-gray-300'}`} required />{errors.bedrijfsnaam && <p className="text-red-500 text-xs mt-1">{errors.bedrijfsnaam}</p>}</div>
+                            <div><label className="block text-gray-700 mb-2">KvK-nummer*</label><input type="text" name="kvk" value={formData.kvk} onChange={handleChange} onBlur={handleBlur} className={`w-full p-2 border rounded-md ${errors.kvk ? 'border-red-500' : 'border-gray-300'}`} required />{errors.kvk && <p className="text-red-500 text-xs mt-1">{errors.kvk}</p>}</div>
+                            <div><label className="block text-gray-700 mb-2">Emailadres*</label><input type="email" name="email" value={formData.email} onChange={handleChange} onBlur={handleBlur} className={`w-full p-2 border rounded-md ${errors.email ? 'border-red-500' : 'border-gray-300'}`} required />{errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}</div>
+                            <div><label className="block text-gray-700 mb-2">Wachtwoord*</label><input type="password" name="password" value={formData.password} onChange={handleChange} onBlur={handleBlur} className={`w-full p-2 border rounded-md ${errors.password ? 'border-red-500' : 'border-gray-300'}`} required />{errors.password && <p className="text-red-500 text-xs mt-1">{errors.password}</p>}</div>
+                        </div>
+                        <button type="submit" className="w-full btn btn-primary mt-6">Registreer</button>
+                        <p className="text-center mt-4 text-sm text-gray-600">Heeft u al een account? <span onClick={() => navigateTo('login')} className="font-semibold link">Log hier in</span></p>
+                    </form>
+                </div>
+            );
+        };
+        
+        const ProfilePage = ({ showNotification }) => {
+            const [profile, setProfile] = useState(null);
+            const [capabilities, setCapabilities] = useState([]);
+            const [loading, setLoading] = useState(true);
+            useEffect(() => {
+                const fetchProfile = async () => {
+                    try { const data = await apiRequest('/profile'); setProfile(data); setCapabilities(data.capabilities || []); } 
+                    catch (error) { showNotification(error.message, 'error'); } 
+                    finally { setLoading(false); }
+                };
+                fetchProfile();
+            }, []);
+            const handleProfileChange = (e) => setProfile(prev => ({ ...prev, [e.target.name]: e.target.value }));
+            const handleCapabilityChange = (index, field, value) => {
+                const newCaps = [...capabilities];
+                newCaps[index][field] = value;
+                setCapabilities(newCaps);
+            };
+            const addCapability = () => setCapabilities([...capabilities, { machineType: '', materials: '', details: '' }]);
+            const removeCapability = (index) => setCapabilities(capabilities.filter((_, i) => i !== index));
+            const handleProfileSubmit = async (e) => { e.preventDefault(); try { await apiRequest('/profile', 'PUT', profile); showNotification('Profiel succesvol bijgewerkt', 'success'); } catch (error) { showNotification(error.message, 'error'); } };
+            const handleCapabilitiesSubmit = async (e) => { e.preventDefault(); try { await apiRequest('/profile/capabilities', 'PUT', { capabilities }); showNotification('Capaciteiten succesvol opgeslagen', 'success'); } catch (error) { showNotification(error.message, 'error'); } };
+            if (loading) return <p>Profiel laden...</p>;
+            if (!profile) return <p>Kon profiel niet laden.</p>;
+            return (
+                 <div className="max-w-4xl mx-auto mt-10 space-y-8">
+                    <form onSubmit={handleProfileSubmit} className="card">
+                        <h2 className="text-2xl font-bold mb-6">Mijn Bedrijfsprofiel</h2>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div><label className="block text-gray-700 mb-2">Bedrijfsnaam</label><input type="text" name="bedrijfsnaam" value={profile.bedrijfsnaam || ''} onChange={handleProfileChange} className="w-full p-2 border rounded-md" /></div>
+                            <div><label className="block text-gray-700 mb-2">Plaats</label><input type="text" name="plaats" value={profile.plaats || ''} onChange={handleProfileChange} className="w-full p-2 border rounded-md" /></div>
+                        </div>
+                        <div className="mt-6 text-right"><button type="submit" className="btn btn-primary">Bedrijfsgegevens Opslaan</button></div>
+                    </form>
+                    <form onSubmit={handleCapabilitiesSubmit} className="card">
+                        <h2 className="text-2xl font-bold mb-6">Mijn Productiecapaciteiten</h2>
+                        <p className="text-gray-600 mb-6">Voeg hier uw machines en specialisaties toe.</p>
+                        <div className="space-y-6">
+                            {capabilities.map((cap, index) => (
+                                <div key={index} className="p-4 border rounded-lg relative">
+                                    <button type="button" onClick={() => removeCapability(index)} className="absolute top-2 right-2 text-red-500 hover:text-red-700 font-bold">X</button>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div><label className="block text-gray-700 mb-2">Machinetype</label><input type="text" placeholder="bv. Heidelberg Speedmaster" value={cap.machineType} onChange={e => handleCapabilityChange(index, 'machineType', e.target.value)} className="w-full p-2 border rounded-md" required /></div>
+                                        <div><label className="block text-gray-700 mb-2">Materialen (gescheiden door komma's)</label><input type="text" placeholder="bv. papier, karton, vinyl" value={cap.materials} onChange={e => handleCapabilityChange(index, 'materials', e.target.value)} className="w-full p-2 border rounded-md" required /></div>
+                                        <div className="md:col-span-2"><label className="block text-gray-700 mb-2">Overige specificaties</label><textarea placeholder="bv. Max formaat: 70x100cm" value={cap.details} onChange={e => handleCapabilityChange(index, 'details', e.target.value)} className="w-full p-2 border rounded-md"></textarea></div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                        <div className="mt-6 flex justify-between">
+                            <button type="button" onClick={addCapability} className="btn btn-secondary">Nieuwe Capaciteit Toevoegen</button>
+                            <button type="submit" className="btn btn-primary">Capaciteiten Opslaan</button>
+                        </div>
+                    </form>
+                 </div>
+            );
+        };
+        
+        const PublicProfilePage = ({ userId, showNotification, navigateTo }) => {
+            const [profile, setProfile] = useState(null);
+            const [loading, setLoading] = useState(true);
+            useEffect(() => {
+                const fetchPublicProfile = async () => {
+                    if (!userId) return;
+                    try { const data = await apiRequest(`/users/${userId}`); setProfile(data); } 
+                    catch (error) { showNotification(error.message, 'error'); } 
+                    finally { setLoading(false); }
+                };
+                fetchPublicProfile();
+            }, [userId]);
+            if (loading) return <p>Profiel wordt geladen...</p>;
+            if (!profile) return <p>Kon dit bedrijfsprofiel niet vinden.</p>;
+            return (
+                <div>
+                    <button onClick={() => window.history.back()} className="btn btn-secondary mb-6">← Terug</button>
+                    <div className="card">
+                        <h2 className="text-3xl font-bold">{profile.bedrijfsnaam}</h2>
+                        <p className="text-lg text-gray-600 mb-6">{profile.plaats}</p>
+                        <div className="flex items-center gap-2 mb-6">
+                            <StarRating rating={Math.round(profile.averageRating)} setRating={() => {}} /> 
+                            <span className="text-gray-600">({profile.reviewCount} reviews)</span>
+                        </div>
+                        <h3 className="text-2xl font-semibold border-t pt-6 mt-6">Productiecapaciteiten</h3>
+                        {profile.capabilities && profile.capabilities.length > 0 ? (
+                            <div className="space-y-4 mt-4">
+                                {profile.capabilities.map((cap, index) => (
+                                    <div key={index} className="p-4 border rounded-md">
+                                        <h4 className="font-bold text-lg">{cap.machineType}</h4>
+                                        <p><strong>Materialen:</strong> {cap.materials}</p>
+                                        {cap.details && <p><strong>Details:</strong> {cap.details}</p>}
+                                    </div>
+                                ))}
+                            </div>
+                        ) : (<p className="mt-4">Dit bedrijf heeft nog geen specifieke capaciteiten opgegeven.</p>)}
+                        <h3 className="text-2xl font-semibold border-t pt-6 mt-6">Reviews</h3>
+                        {profile.reviews && profile.reviews.length > 0 ? (
+                            <div className="space-y-4 mt-4">
+                                {profile.reviews.map((review, index) => (
+                                    <div key={index} className="p-4 border-b">
+                                        <StarRating rating={review.rating} setRating={() => {}} />
+                                        <p className="text-gray-800 mt-2">{review.comment}</p>
+                                        <p className="text-sm text-gray-500 mt-2">- {review.customerName}</p>
+                                    </div>
+                                ))}
+                            </div>
+                        ) : (
+                            <p className="mt-4">Dit bedrijf heeft nog geen reviews ontvangen.</p>
+                        )}
+                    </div>
+                </div>
+            );
+        };
+        
+        const VerifyEmailPage = ({ token, showNotification, navigateTo }) => {
+            const [message, setMessage] = useState('Uw e-mailadres wordt geverifieerd...');
+            useEffect(() => {
+                const verify = async () => {
+                    if (!token) { setMessage('Geen verificatie token gevonden.'); return; }
+                    try {
+                        const data = await apiRequest(`/auth/verify-email/${token}`);
+                        setMessage(`${data.message} U wordt doorgestuurd...`);
+                        showNotification('Uw account wordt nu beoordeeld door een beheerder.', 'info', 8000);
+                        setTimeout(() => navigateTo('login'), 4000);
+                    } catch (error) { setMessage(error.message); }
+                };
+                verify();
+            }, [token]);
+            return (<div className="text-center p-10 bg-white rounded-lg shadow-lg mt-10"><h2 className="text-2xl font-bold mb-4">E-mail Verificatie</h2><p>{message}</p></div>);
+        };
+        
+        const Dashboard = ({ currentUser, navigateTo }) => { 
+            return (
+                <div>
+                    <h2 className="text-3xl font-bold mb-6">Welkom, {currentUser.bedrijfsnaam}</h2>
+                    <div className="grid md:grid-cols-2 gap-8">
+                        <div className="card card-clickable" onClick={() => navigateTo('create-job')}><h3 className="text-2xl font-bold mb-2">Ik heb een opdracht</h3><p className="text-gray-600 mb-4">Plaats een nieuwe drukwerkopdracht en ontvang snel offertes van geschikte drukkerijen.</p><span className="font-semibold text-gray-800">Plaats Opdracht →</span></div>
+                        <div className="card card-clickable" onClick={() => navigateTo('offer-capacity')}><h3 className="text-2xl font-bold mb-2">Ik bied capaciteit aan</h3><p className="text-gray-600 mb-4">Heeft u overcapaciteit op een van uw machines? Bied deze hier aan andere partijen aan.</p><span className="font-semibold text-gray-800">Bied Capaciteit Aan →</span></div>
+                    </div>
+                </div>
+            );
+        };
+        
+        const CreateJob = ({ navigateTo, showNotification }) => {
+            const [formData, setFormData] = useState({ title: '', description: '', format: '', quantity: '', material: '', deadline: '', location: '' });
+            const [isPublic, setIsPublic] = useState(false);
+            const handleChange = (e) => setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
+            const handleSubmit = async (e) => {
+                e.preventDefault();
+                try {
+                    await apiRequest('/jobs', 'POST', { ...formData, isPublic });
+                    showNotification('Opdracht succesvol geplaatst!');
+                    navigateTo('my-jobs');
+                } catch (error) { showNotification(error.message, 'error'); }
+            };
+            return (
+                <div className="max-w-2xl mx-auto">
+                    <form onSubmit={handleSubmit} className="card">
+                        <h2 className="text-2xl font-bold text-center mb-6">Plaats een nieuwe drukwerkopdracht</h2>
+                        <div className="space-y-4">
+                            <div><label className="block text-gray-700 mb-2">Titel van de opdracht*</label><input type="text" name="title" value={formData.title} onChange={handleChange} placeholder="bv. Flyers voor evenement" className="w-full p-2 border rounded-md" required /></div>
+                            <div><label className="block text-gray-700 mb-2">Omschrijving*</label><textarea name="description" value={formData.description} onChange={handleChange} placeholder="Geef een duidelijke omschrijving..." className="w-full p-2 border rounded-md" required /></div>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div><label className="block text-gray-700 mb-2">Oplage*</label><input type="number" name="quantity" value={formData.quantity} onChange={handleChange} placeholder="bv. 5000" className="w-full p-2 border rounded-md" required /></div>
+                                <div><label className="block text-gray-700 mb-2">Materiaal*</label><input type="text" name="material" value={formData.material} onChange={handleChange} placeholder="bv. karton" className="w-full p-2 border rounded-md" required /></div>
+                            </div>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div><label className="block text-gray-700 mb-2">Formaat</label><input type="text" name="format" value={formData.format} onChange={handleChange} placeholder="bv. A4" className="w-full p-2 border rounded-md" /></div>
+                                <div><label className="block text-gray-700 mb-2">Gewenste deadline (optioneel)</label><input type="date" name="deadline" value={formData.deadline} onChange={handleChange} className="w-full p-2 border rounded-md" /></div>
+                            </div>
+                            <div><label className="block text-gray-700 mb-2">Gewenste plaats van productie (optioneel)</label><input type="text" name="location" value={formData.location} onChange={handleChange} placeholder="bv. Amsterdam" className="w-full p-2 border rounded-md" /></div>
+                            <div className="mt-4 pt-4 border-t"><label className="flex items-center"><input type="checkbox" checked={isPublic} onChange={e => setIsPublic(e.target.checked)} className="h-4 w-4 text-gray-600 border-gray-300 rounded" /><span className="ml-2 text-gray-700">Plaats deze opdracht ook openbaar op de Marktplaats</span></label><p className="text-sm text-gray-500 mt-1">Indien aangevinkt, is uw opdracht zichtbaar voor alle drukkerijen. Anders ontvangen alleen direct gematchte drukkerijen een verzoek.</p></div>
+                        </div>
+                        <div className="flex justify-end gap-4 mt-6"><button type="button" onClick={() => navigateTo('dashboard')} className="btn btn-secondary">Annuleren</button><button type="submit" className="btn btn-primary">Plaats Opdracht</button></div>
+                    </form>
+                </div>
+            );
+        };
+
+        const JobMarketplace = ({ navigateTo, showNotification }) => {
+            const [jobs, setJobs] = useState([]);
+            const [loading, setLoading] = useState(true);
+            useEffect(() => {
+                const fetchJobs = async () => {
+                    try {
+                        const data = await apiRequest('/jobs/marketplace');
+                        setJobs(data);
+                    } catch(error) { showNotification(error.message, 'error'); } 
+                    finally { setLoading(false); }
+                };
+                fetchJobs();
+            }, []);
+            if (loading) return <p>Marktplaats wordt geladen...</p>;
+            return (
+                <div>
+                    <h2 className="text-3xl font-bold mb-6">Opdrachten Marktplaats</h2>
+                    {jobs.length === 0 ? (<p>Er zijn momenteel geen openbare opdrachten beschikbaar.</p>) : (
+                        <div className="space-y-4">
+                            {jobs.map(job => (
+                                <div key={job.id} className="card card-clickable" onClick={() => navigateTo('submit-quote', job.id)}>
+                                    <h3 className="text-xl font-bold">{job.title}</h3>
+                                    <p className="text-gray-600">Aangevraagd door: <span className="link" onClick={(e) => { e.stopPropagation(); navigateTo('profile', job.customerId); }}>{job.customerName}</span></p>
+                                    <div className="mt-2 text-sm">
+                                        <span className="font-semibold">Oplage:</span> {job.specifications.quantity} | <span className="font-semibold">Materiaal:</span> {job.specifications.material}
+                                        {job.specifications.location && <> | <span className="font-semibold">Locatie:</span> {job.specifications.location}</>}
+                                    </div>
+                                    <div className="text-right mt-2"><span className="font-semibold text-gray-800">Bekijk en Dien Offerte In →</span></div>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </div>
+            );
+        };
+        
+        const MyJobs = ({ navigateTo, showNotification }) => {
+            const [jobs, setJobs] = useState([]);
+            const [loading, setLoading] = useState(true);
+            useEffect(() => {
+                const fetchJobs = async () => {
+                    try { const data = await apiRequest('/jobs/my-jobs'); setJobs(data); } 
+                    catch(error) { showNotification(error.message, 'error'); } 
+                    finally { setLoading(false); }
+                };
+                fetchJobs();
+            }, []);
+            if(loading) return <p>Opdrachten laden...</p>;
+            return (
+                <div>
+                     <h2 className="text-3xl font-bold mb-6">Mijn Geplaatste Opdrachten</h2>
+                     {jobs.length === 0 ? (<p>U heeft nog geen opdrachten geplaatst. <span className="link" onClick={() => navigateTo('create-job')}>Plaats uw eerste opdracht.</span></p>) : (
+                         <div className="space-y-4">
+                             {jobs.map(job => (
+                                 <div key={job.id} className="card card-clickable" onClick={() => navigateTo('job-details', job.id)}>
+                                     <div className="flex justify-between items-start">
+                                        <div><h3 className="text-xl font-bold">{job.title}</h3><p className="text-gray-600">Geplaatst op: {new Date(job.createdAt).toLocaleDateString('nl-NL')}</p></div>
+                                        <StatusBadge status={job.status} />
+                                     </div>
+                                      <div className="text-right mt-2"><span className="font-semibold text-gray-800">Bekijk Details en Offertes →</span></div>
+                                 </div>
+                             ))}
+                         </div>
+                     )}
+                </div>
+            );
+        };
+
+        const JobDetails = ({ jobId, navigateTo, showNotification, currentUser }) => {
+            const [job, setJob] = useState(null);
+            const [quotes, setQuotes] = useState([]);
+            const [loading, setLoading] = useState(true);
+            const [reviewRating, setReviewRating] = useState(0);
+            const [reviewComment, setReviewComment] = useState("");
+            const fetchDetails = useCallback(async () => {
+                 try {
+                    setLoading(true);
+                    const jobData = await apiRequest(`/jobs/${jobId}`);
+                    setJob(jobData);
+                    const quotesData = await apiRequest(`/jobs/${jobId}/quotes`);
+                    setQuotes(quotesData);
+                } catch(error) { showNotification(error.message, 'error'); } 
+                finally { setLoading(false); }
+            }, [jobId]);
+            useEffect(() => { fetchDetails(); }, [fetchDetails]);
+            const handleAcceptQuote = async (quoteId) => {
+                if(window.confirm('Weet u zeker dat u deze offerte wilt accepteren?')) {
+                    try {
+                        await apiRequest(`/jobs/${jobId}/quotes/${quoteId}/accept`, 'POST');
+                        showNotification('Offerte geaccepteerd!', 'success');
+                        fetchDetails();
+                    } catch(error) { showNotification(error.message, 'error'); }
+                }
+            };
+            const handleReviewSubmit = async (e) => {
+                e.preventDefault();
+                try {
+                    await apiRequest(`/jobs/${jobId}/reviews`, 'POST', { rating: reviewRating, comment: reviewComment });
+                    showNotification("Review succesvol ingediend!", "success");
+                    fetchDetails();
+                } catch (error) { showNotification(error.message, 'error'); }
+            };
+            if (loading) return <p>Details en offertes laden...</p>;
+            if (!job) return <p>Kon opdracht niet vinden.</p>;
+            return (
+                <div>
+                     <button onClick={() => navigateTo('my-jobs')} className="btn btn-secondary mb-4">← Terug</button>
+                     <div className="card mb-8">
+                        <div className="flex justify-between items-start"><h2 className="text-2xl font-bold mb-4">{job.title}</h2><StatusBadge status={job.status} /></div>
+                        <p className="text-gray-600 mb-4 whitespace-pre-wrap">{job.description}</p>
+                        <h3 className="font-semibold text-lg mb-2">Specificaties</h3>
+                        <ul className="list-disc list-inside space-y-1">
+                            <li><strong>Oplage:</strong> {job.specifications.quantity}</li><li><strong>Materiaal:</strong> {job.specifications.material}</li><li><strong>Formaat:</strong> {job.specifications.format}</li>
+                            {job.deadline && <li><strong>Deadline:</strong> {new Date(job.deadline).toLocaleDateString('nl-NL')}</li>}
+                        </ul>
+                    </div>
+                    <div>
+                        <h2 className="text-2xl font-bold mb-4">Ontvangen Offertes</h2>
+                        {quotes.length > 0 ? (
+                            <div className="space-y-4">
+                                {quotes.map(quote => (
+                                    <div key={quote.id} className={`card border-2 ${quote.status === 'accepted' ? 'border-green-500' : 'border-transparent'}`}>
+                                        <div className="flex justify-between items-start">
+                                            <div>
+                                                <h3 className="text-xl font-bold link" onClick={() => navigateTo('profile', quote.providerId)}>{quote.providerName}</h3>
+                                                <p className="text-2xl font-bold text-gray-800">€ {parseFloat(quote.price).toFixed(2)}</p>
+                                                <p className="text-gray-600">Levertijd: {quote.deliveryTime}</p>
+                                            </div>
+                                            <div>
+                                                {job.status === 'quoting' && (<button onClick={() => handleAcceptQuote(quote.id)} className="btn btn-primary">Accepteer Offerte</button>)}
+                                                {quote.status === 'accepted' && ( <p className="font-bold text-green-600">GEACCEPTEERD</p> )}
+                                                {quote.status === 'rejected' && ( <p className="font-bold text-red-600">AFGEWEZEN</p> )}
+                                            </div>
+                                        </div>
+                                        {quote.comments && <p className="mt-4 pt-4 border-t text-gray-700"><i>Opmerking: {quote.comments}</i></p>}
+                                    </div>
+                                ))}
+                            </div>
+                        ) : (<p>Er zijn nog geen offertes ontvangen.</p>)}
+                    </div>
+                    {job.status === 'completed' && job.customerId === currentUser?.userId && !job.reviewSubmitted && (
+                        <div className="card mt-8">
+                            <h2 className="text-2xl font-bold mb-4">Laat een review achter</h2>
+                            <form onSubmit={handleReviewSubmit}>
+                                <div className="mb-4"><label className="block text-gray-700 mb-2">Score</label><StarRating rating={reviewRating} setRating={setReviewRating} /></div>
+                                <div className="mb-4"><label className="block text-gray-700 mb-2">Opmerking</label><textarea value={reviewComment} onChange={(e) => setReviewComment(e.target.value)} className="w-full p-2 border rounded-md"></textarea></div>
+                                <button type="submit" className="btn btn-primary" disabled={reviewRating === 0}>Verstuur Review</button>
+                            </form>
+                        </div>
+                    )}
+                    {job.reviewSubmitted && <p className="mt-4 text-green-600 font-semibold">U heeft al een review voor deze opdracht achtergelaten.</p>}
+                </div>
+            );
+        };
+
+        const QuoteRequests = ({ navigateTo, showNotification }) => {
+            const [requests, setRequests] = useState([]);
+            const [loading, setLoading] = useState(true);
+            useEffect(() => {
+                const fetchRequests = async () => {
+                    try { const data = await apiRequest('/quote-requests'); setRequests(data); } 
+                    catch(error) { showNotification(error.message, 'error'); } 
+                    finally { setLoading(false); }
+                };
+                fetchRequests();
+            }, []);
+            if (loading) return <p>Offerteaanvragen laden...</p>;
+            return (
+                <div>
+                    <h2 className="text-3xl font-bold mb-6">Inkomende Offerteaanvragen</h2>
+                    {requests.length === 0 ? (<p>Er zijn momenteel geen nieuwe offerteaanvragen voor u.</p>) : (
+                        <div className="space-y-4">
+                            {requests.map(req => (
+                                <div key={req.id} className="card card-clickable" onClick={() => navigateTo('submit-quote', req.jobId)}>
+                                    <h3 className="text-xl font-bold">{req.jobTitle}</h3>
+                                    <p className="text-gray-600">Aanvraag geplaatst op: {new Date(req.createdAt).toLocaleDateString('nl-NL')}</p>
+                                    <div className="text-right mt-2"><span className="font-semibold text-gray-800">Bekijk en Dien Offerte In →</span></div>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </div>
+            );
+        };
+
+        const SubmitQuote = ({ jobId, navigateTo, showNotification }) => {
+            const [job, setJob] = useState(null);
+            const [loading, setLoading] = useState(true);
+            const [quoteData, setQuoteData] = useState({ price: '', deliveryTime: '', comments: '' });
+            useEffect(() => {
+                const fetchJob = async () => {
+                    try { const data = await apiRequest(`/jobs/${jobId}`); setJob(data); } 
+                    catch(error) { showNotification(error.message, 'error'); } 
+                    finally { setLoading(false); }
+                };
+                fetchJob();
+            }, [jobId]);
+            const handleChange = (e) => setQuoteData(prev => ({...prev, [e.target.name]: e.target.value}));
+            const handleSubmit = async (e) => {
+                e.preventDefault();
+                try {
+                    await apiRequest(`/jobs/${jobId}/quotes`, 'POST', quoteData);
+                    showNotification('Offerte succesvol ingediend!');
+                    navigateTo('my-submitted-quotes');
+                } catch(error) { showNotification(error.message, 'error'); }
+            };
+            if (loading) return <p>Opdrachtdetails laden...</p>;
+            if (!job) return <p>Kon de opdracht niet vinden.</p>;
+            return (
+                <div>
+                    <button onClick={() => navigateTo('quote-requests')} className="btn btn-secondary mb-4">← Terug</button>
+                    <div className="grid md:grid-cols-2 gap-8">
+                        <div className="card">
+                            <h2 className="text-2xl font-bold mb-4">{job.title}</h2>
+                            <p className="text-gray-600 mb-4 whitespace-pre-wrap">{job.description}</p>
+                            <h3 className="font-semibold text-lg mb-2">Specificaties</h3>
+                            <ul className="list-disc list-inside space-y-1">
+                                <li><strong>Oplage:</strong> {job.specifications.quantity}</li>
+                                <li><strong>Materiaal:</strong> {job.specifications.material}</li>
+                                <li><strong>Formaat:</strong> {job.specifications.format}</li>
+                                {job.deadline && <li><strong>Deadline:</strong> {new Date(job.deadline).toLocaleDateString('nl-NL')}</li>}
+                            </ul>
+                            <p className="mt-4 text-sm text-gray-500">Aangevraagd door: <span className="link" onClick={() => navigateTo('profile', job.customerId)}>{job.customerName}</span></p>
+                        </div>
+                        <div className="card">
+                             <h2 className="text-2xl font-bold mb-4">Dien uw offerte in</h2>
+                             <form onSubmit={handleSubmit} className="space-y-4">
+                                <div><label className="block text-gray-700 mb-2">Prijs*</label><div className="relative"><span className="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-500">€</span><input type="number" step="0.01" name="price" value={quoteData.price} onChange={handleChange} placeholder="450.50" className="w-full p-2 border rounded-md pl-7" required/></div></div>
+                                <div><label className="block text-gray-700 mb-2">Verwachte levertijd*</label><input type="text" name="deliveryTime" value={quoteData.deliveryTime} onChange={handleChange} placeholder="bv. 5 werkdagen" className="w-full p-2 border rounded-md" required/></div>
+                                <div><label className="block text-gray-700 mb-2">Opmerkingen</label><textarea name="comments" value={quoteData.comments} onChange={handleChange} placeholder="Eventuele opmerkingen." className="w-full p-2 border rounded-md"></textarea></div>
+                                <div className="text-right"><button type="submit" className="btn btn-primary">Verstuur Offerte</button></div>
+                             </form>
+                        </div>
+                    </div>
+                </div>
+            )
+        };
+        
+        const MyProductions = ({ navigateTo, showNotification }) => {
+            const [jobs, setJobs] = useState([]);
+            const [loading, setLoading] = useState(true);
+            useEffect(() => {
+                const fetchJobs = async () => {
+                    try { const data = await apiRequest('/jobs/production'); setJobs(data); } 
+                    catch(error) { showNotification(error.message, 'error'); } 
+                    finally { setLoading(false); }
+                };
+                fetchJobs();
+            }, []);
+            if(loading) return <p>Productie-opdrachten laden...</p>;
+            return (
+                 <div>
+                     <h2 className="text-3xl font-bold mb-6">Mijn Productie-opdrachten</h2>
+                     {jobs.length === 0 ? (<p>U heeft momenteel geen opdrachten in productie.</p>) : (
+                         <div className="space-y-4">
+                             {jobs.map(job => (
+                                 <div key={job.id} className="card card-clickable" onClick={() => navigateTo('production-details', job.id)}>
+                                     <div className="flex justify-between items-start">
+                                        <div><h3 className="text-xl font-bold">{job.title}</h3><p className="text-gray-600">Klant: <span className="link" onClick={(e) => { e.stopPropagation(); navigateTo('profile', job.customerId); }}>{job.customerName}</span></p></div>
+                                        <StatusBadge status={job.status} />
+                                     </div>
+                                      <div className="text-right mt-2"><span className="font-semibold text-gray-800">Beheer Productie →</span></div>
+                                 </div>
+                             ))}
+                         </div>
+                     )}
+                </div>
+            );
+        };
+
+        const ProductionJobDetails = ({ jobId, navigateTo, showNotification }) => {
+            const [job, setJob] = useState(null);
+            const [loading, setLoading] = useState(true);
+            const fetchJob = useCallback(async () => {
+                try { setLoading(true); const data = await apiRequest(`/jobs/${jobId}`); setJob(data); } 
+                catch(error) { showNotification(error.message, 'error'); } 
+                finally { setLoading(false); }
+            }, [jobId]);
+            useEffect(() => { fetchJob(); }, [fetchJob]);
+            const handleStatusUpdate = async (newStatus) => {
+                 if(window.confirm(`Weet u zeker dat u de status wilt wijzigen naar "${newStatus}"?`)) {
+                    try { await apiRequest(`/jobs/${jobId}/status`, 'PUT', { status: newStatus }); showNotification('Status succesvol bijgewerkt!'); fetchJob(); } 
+                    catch(error) { showNotification(error.message, 'error'); }
+                }
+            };
+            if (loading) return <p>Opdrachtdetails laden...</p>;
+            if (!job) return <p>Kon opdracht niet vinden.</p>;
+            return(
+                <div>
+                     <button onClick={() => navigateTo('my-productions')} className="btn btn-secondary mb-4">← Terug</button>
+                      <div className="card">
+                        <div className="flex justify-between items-start"><h2 className="text-2xl font-bold mb-4">{job.title}</h2><StatusBadge status={job.status} /></div>
+                        <p className="text-gray-600 mb-4 whitespace-pre-wrap">{job.description}</p>
+                        <h3 className="font-semibold text-lg mb-2">Specificaties</h3>
+                        <ul className="list-disc list-inside space-y-1">
+                            <li><strong>Oplage:</strong> {job.specifications.quantity}</li>
+                            <li><strong>Materiaal:</strong> {job.specifications.material}</li>
+                            <li><strong>Formaat:</strong> {job.specifications.format}</li>
+                            {job.deadline && <li><strong>Deadline:</strong> {new Date(job.deadline).toLocaleDateString('nl-NL')}</li>}
+                        </ul>
+                        <p className="mt-4 text-sm text-gray-500">Klant: <span className="link" onClick={() => navigateTo('profile', job.customerId)}>{job.customerName}</span></p>
+                        {job.status === 'in_production' && (
+                            <div className="mt-6 pt-6 border-t">
+                                <h3 className="text-lg font-semibold mb-2">Productie Acties</h3>
+                                <button onClick={() => handleStatusUpdate('completed')} className="btn btn-primary">Markeer als Voltooid</button>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            );
+        };
+        
+        const MySubmittedQuotes = ({ navigateTo, showNotification }) => {
+            const [quotes, setQuotes] = useState([]);
+            const [loading, setLoading] = useState(true);
+            useEffect(() => {
+                const fetchQuotes = async () => {
+                    try { const data = await apiRequest('/quotes/my-submitted'); setQuotes(data); } 
+                    catch (error) { showNotification(error.message, 'error'); } 
+                    finally { setLoading(false); }
+                };
+                fetchQuotes();
+            }, []);
+            if (loading) return <p>Ingediende offertes laden...</p>;
+            return (
+                <div>
+                    <h2 className="text-3xl font-bold mb-6">Mijn Ingediende Offertes</h2>
+                    {quotes.length === 0 ? (<p>U heeft nog geen offertes ingediend.</p>) : (
+                        <div className="space-y-4">
+                            {quotes.map(quote => (
+                                <div key={quote.id} className="card">
+                                    <div className="flex justify-between items-start">
+                                        <div>
+                                            <h3 className="text-xl font-bold link" onClick={() => navigateTo('job-details', quote.jobId)}>{quote.jobTitle}</h3>
+                                            <p className="text-lg font-semibold text-gray-800">€ {parseFloat(quote.price).toFixed(2)}</p>
+                                            <p className="text-gray-600 text-sm">Ingediend op: {new Date(quote.createdAt).toLocaleDateString('nl-NL')}</p>
+                                        </div>
+                                        <StatusBadge status={quote.status} />
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </div>
+            );
+        };
+        
+        const OfferCapacity = ({ navigateTo, showNotification }) => { 
+            const [machineType, setMachineType] = useState(''); 
+            const [material, setMaterial] = useState(''); 
+            const [capacityDetails, setCapacityDetails] = useState(''); 
+            const [price, setPrice] = useState(''); 
+            const handleSubmit = async (e) => { 
+                e.preventDefault(); 
+                const offerData = { machineType, material, capacityDetails, price }; 
+                try { await apiRequest('/offers', 'POST', offerData); showNotification('Aanbod succesvol geplaatst!'); navigateTo('my-offers'); } 
+                catch (error) { showNotification(error.message, 'error'); } 
+            }; 
+            return (
+                <div className="max-w-2xl mx-auto">
+                    <form onSubmit={handleSubmit} className="card">
+                        <h2 className="text-2xl font-bold text-center mb-6">Bied Vrije Capaciteit Aan</h2>
+                        <div className="mb-4"><label className="block text-gray-700 mb-2">Machinetype</label><input type="text" placeholder="bv. Heidelberg Speedmaster" value={machineType} onChange={e => setMachineType(e.target.value)} className="w-full p-2 border rounded-md" required /></div>
+                        <div className="mb-4"><label className="block text-gray-700 mb-2">Materiaal</label><input type="text" placeholder="bv. Papier, Karton, Vinyl" value={material} onChange={e => setMaterial(e.target.value)} className="w-full p-2 border rounded-md" required /></div>
+                        <div className="mb-4"><label className="block text-gray-700 mb-2">Details Capaciteit</label><textarea placeholder="Beschrijf de beschikbare capaciteit..." value={capacityDetails} onChange={e => setCapacityDetails(e.target.value)} className="w-full p-2 border rounded-md" required /></div>
+                        <div className="mb-6">
+                             <label className="block text-gray-700 mb-2">Prijsindicatie</label>
+                             <div className="relative"><span className="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-500">€</span><input type="text" placeholder="bv. 500 per dag" value={price} onChange={e => setPrice(e.target.value)} className="w-full p-2 border rounded-md pl-7" required /></div>
+                        </div>
+                        <div className="flex justify-end gap-4"><button type="button" onClick={() => navigateTo('dashboard')} className="btn btn-secondary">Annuleren</button><button type="submit" className="btn btn-primary">Plaats Aanbod</button></div>
+                    </form>
+                </div>
+            );
+        };
+        
+        const MyOffers = ({ currentUser, navigateTo, showNotification }) => { 
+            const [myOffers, setMyOffers] = useState([]); 
+            const fetchMyOffers = useCallback(async () => { 
+                if (!currentUser) return; 
+                try { 
+                    const allOffers = await apiRequest(`/offers/search`); 
+                    setMyOffers(allOffers.filter(o => o.ownerId === currentUser.userId)); 
+                } catch (error) { showNotification(error.message, 'error'); } 
+            }, [currentUser, showNotification]);
+            useEffect(() => { fetchMyOffers(); }, [fetchMyOffers]); 
+            return (
+                <div>
+                    <h2 className="text-3xl font-bold mb-6">Mijn Geplaatste Aanbod</h2>
+                    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {myOffers.length > 0 ? myOffers.map(offer => (
+                             <div key={offer.id} className="card card-clickable" onClick={() => navigateTo('offer-details', offer.id)}>
+                                <h3 className="text-xl font-bold mb-2">{offer.machineType}</h3>
+                                <p className="text-gray-600 mb-1"><strong>Materiaal:</strong> {offer.material}</p>
+                                <p className="text-gray-600 mb-4 truncate"><strong>Details:</strong> {offer.capacityDetails}</p>
+                                <div className="text-right text-lg font-bold text-gray-800">{offer.price}</div>
+                            </div>
+                        )) : <p>U heeft nog geen aanbod geplaatst. <span className="link" onClick={() => navigateTo('offer-capacity')}>Bied nu capaciteit aan.</span></p>}
+                    </div>
+                </div>
+            );
+        };
+        
+        const OfferDetails = ({ offerId, showNotification, navigateTo, currentUser }) => {
+            const [offer, setOffer] = useState(null);
+            const [loading, setLoading] = useState(true);
+            useEffect(() => {
+                const fetchOffer = async () => {
+                    try { const data = await apiRequest(`/offers/${offerId}`); setOffer(data); } 
+                    catch (error) { showNotification(error.message, 'error'); } 
+                    finally { setLoading(false); }
+                };
+                fetchOffer();
+            }, [offerId, showNotification]);
+            if (loading) return <p>Aanbod laden...</p>;
+            if (!offer) return <p>Aanbod niet gevonden.</p>;
+            return (
+                <div>
+                    <button onClick={() => window.history.back()} className="btn btn-secondary mb-6">← Terug</button>
+                    <div className="card">
+                         <h2 className="text-3xl font-bold mb-2">{offer.machineType}</h2>
+                        <p className="text-lg text-gray-700 mb-4">Aangeboden door: <strong className="link" onClick={() => navigateTo('profile', offer.ownerId)}>{offer.owner}</strong></p>
+                        <div className="grid md:grid-cols-2 gap-6 mt-6"><div><h3 className="font-semibold text-gray-800">Materiaal</h3><p>{offer.material}</p></div><div><h3 className="font-semibold text-gray-800">Prijsindicatie</h3><p className="text-2xl font-bold text-gray-900">{offer.price}</p></div></div>
+                        <div className="mt-6"><h3 className="font-semibold text-gray-800">Details</h3><p className="text-gray-600 whitespace-pre-wrap">{offer.capacityDetails}</p></div>
+                    </div>
+                </div>
+            );
+        };
+        
+        const AdminDashboard = ({ showNotification }) => { 
+            const [view, setView] = useState('users'); 
+            return (
+                <div>
+                    <h2 className="text-3xl font-bold mb-4">Admin Dashboard</h2>
+                    <div className="flex border-b mb-6">
+                        <button onClick={() => setView('users')} className={`py-2 px-4 ${view === 'users' ? 'border-b-2 border-gray-800 font-semibold' : ''}`}>Gebruikersbeheer</button>
+                    </div>
+                    {view === 'users' && <UserManagement showNotification={showNotification} />}
+                </div>
+            );
+        };
+        
+        const UserManagement = ({ showNotification }) => { 
+            const [users, setUsers] = useState([]); 
+            const fetchUsers = useCallback(async () => { 
+                try { const data = await apiRequest('/admin/users'); setUsers(data); } 
+                catch (error) { showNotification('Kon gebruikers niet ophalen', 'error'); } 
+            }, [showNotification]); 
+            useEffect(() => { fetchUsers(); }, [fetchUsers]); 
+            const handleApprove = async (userId) => { 
+                try { const data = await apiRequest(`/admin/users/${userId}/approve`, 'POST'); showNotification(data.message); fetchUsers(); } 
+                catch (error) { showNotification(error.message, 'error'); } 
+            }; 
+            const handleReject = async (userId) => { 
+                if (window.confirm('Weet u zeker dat u deze gebruiker wilt afwijzen?')) { 
+                    try { const data = await apiRequest(`/admin/users/${userId}/reject`, 'DELETE'); showNotification(data.message); fetchUsers(); } 
+                    catch (error) { showNotification(error.message, 'error'); } 
+                } 
+            }; 
+            const handleResetData = async () => {
+                if (window.confirm('WEET U HET ABSOLUUT ZEKER?')) {
+                    if (window.confirm('TWEEDE BEVESTIGING: Dit is uw laatste kans.')) {
+                        try {
+                            const data = await apiRequest('/admin/reset-data', 'DELETE');
+                            showNotification(data.message, 'success', 5000);
+                            fetchUsers();
+                        } catch (error) { showNotification(error.message, 'error'); }
+                    }
+                }
+            };
+             const handleForceVerify = async (userId) => {
+                try {
+                    const data = await apiRequest(`/admin/users/${userId}/force-verify`, 'POST');
+                    showNotification(data.message, 'success');
+                    fetchUsers();
+                } catch (error) { showNotification(error.message, 'error'); }
+            };
+            const pendingEmailUsers = users.filter(u => u.status === 'pending_email_verification'); 
+            const pendingApprovalUsers = users.filter(u => u.status === 'pending_approval'); 
+            const activeUsers = users.filter(u => u.status === 'active'); 
+            return (
+                <div>
+                    <h3 className="text-2xl font-semibold mb-4">Wachten op e-mailverificatie ({pendingEmailUsers.length})</h3>
+                    <div className="bg-white shadow rounded-lg overflow-x-auto mb-8">
+                        <table className="min-w-full divide-y divide-gray-200"><thead className="bg-gray-50"><tr><th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Bedrijfsnaam</th><th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th><th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Acties</th></tr></thead><tbody className="bg-white divide-y divide-gray-200">{pendingEmailUsers.length > 0 ? pendingEmailUsers.map(user => (<tr key={user.id}><td className="px-6 py-4 whitespace-nowrap">{user.bedrijfsnaam}</td><td className="px-6 py-4 whitespace-nowrap">{user.email}</td><td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium"><button onClick={() => handleForceVerify(user.id)} className="text-blue-600 hover:text-blue-900">Handmatig Verifiëren</button></td></tr>)) : (<tr><td colSpan="3" className="text-center py-4">Geen gebruikers in deze categorie.</td></tr>)}</tbody></table>
+                    </div>
+                    <h3 className="text-2xl font-semibold mb-4">Wachten op goedkeuring ({pendingApprovalUsers.length})</h3>
+                    <div className="bg-white shadow rounded-lg overflow-x-auto">
+                        <table className="min-w-full divide-y divide-gray-200"><thead className="bg-gray-50"><tr><th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Bedrijfsnaam</th><th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th><th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Acties</th></tr></thead><tbody className="bg-white divide-y divide-gray-200">{pendingApprovalUsers.length > 0 ? pendingApprovalUsers.map(user => (<tr key={user.id}><td className="px-6 py-4 whitespace-nowrap">{user.bedrijfsnaam}</td><td className="px-6 py-4 whitespace-nowrap">{user.email}</td><td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium"><button onClick={() => handleApprove(user.id)} className="text-green-600 hover:text-green-900 mr-4">Goedkeuren</button><button onClick={() => handleReject(user.id)} className="text-red-600 hover:text-red-900">Afwijzen</button></td></tr>)) : (<tr><td colSpan="3" className="text-center py-4">Geen gebruikers in deze categorie.</td></tr>)}</tbody></table>
+                    </div>
+                    <h3 className="text-2xl font-semibold mt-8 mb-4">Actieve Gebruikers ({activeUsers.length})</h3>
+                    <div className="bg-white shadow rounded-lg overflow-x-auto">
+                        <ul className="divide-y divide-gray-200">{activeUsers.map(user => (<li key={user.id} className="px-6 py-4"><p><strong>{user.bedrijfsnaam}</strong> ({user.email})</p></li>))}</ul>
+                    </div>
+                     <div className="mt-12 p-4 border-2 border-red-500 rounded-lg">
+                        <h3 className="text-xl font-bold text-red-700 mb-2">Gevaarlijke Zone</h3>
+                        <p className="text-gray-600 mb-4">Deze actie zal alle data op het platform permanent verwijderen, behalve uw eigen admin-account.</p>
+                        <button onClick={handleResetData} className="btn btn-danger">Reset Alle Platform Data</button>
+                    </div>
+                </div>
+            );
+        };
+        
+        ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+    </script>
+</body>
+</html>
