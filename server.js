@@ -1,74 +1,29 @@
-
-// FINALE VERSIE - STAP 12.2 (ALLE ROUTES COMPLEET EN GECORRIGEERD)
-
 const express = require('express');
 const cors = require('cors');
-const admin = require('firebase-admin');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
-const nodemailer = require('nodemailer');
-require('dotenv').config();
+const { PrismaClient } = require('@prisma/client');
+const path = require('path');
 
+require('dotenv').config({ path: path.resolve(__dirname, '.env') });
 
 // --- Configuratie ---
-const saltRounds = 10;
+const prisma = new PrismaClient();
 const JWT_SECRET = process.env.JWT_SECRET;
-const PORT = process.env.PORT || 3001;
-const ADMIN_EMAIL = 'admin@printcap.com';
 
-// --- Firebase Initialisatie ---
-try {
-    const serviceAccount = require('./serviceAccountKey.json');
-    admin.initializeApp({
-        credential: admin.credential.cert(serviceAccount)
-    });
-} catch (error) {
-    console.error("Fout bij het laden van serviceAccountKey.json.", error);
+if (!JWT_SECRET) {
+    console.error("FATALE FOUT: JWT_SECRET is niet geladen. Controleer je .env bestand.");
     process.exit(1);
 }
 
-const db = admin.firestore();
+const PORT = process.env.PORT || 3001;
+const ADMIN_EMAIL = 'admin@printcap.com'; 
+
 const app = express();
 
-// --- E-MAIL CONFIGURATIE ---
-let transporter;
-async function setupEmail() {
-    let testAccount = await nodemailer.createTestAccount();
-    console.log('--- E-mail Test Account (voor ontwikkeling) ---');
-    console.log(`User: ${testAccount.user}`);
-    console.log(`Pass: ${testAccount.pass}`);
-    console.log('--------------------------------------------');
-    transporter = nodemailer.createTransport({
-        host: "smtp.ethereal.email",
-        port: 587,
-        secure: false,
-        auth: {
-            user: testAccount.user,
-            pass: testAccount.pass,
-        },
-    });
-}
-setupEmail().catch(console.error);
-
-async function sendEmail({ to, subject, html }) {
-    if (!transporter) return;
-    try {
-        let info = await transporter.sendMail({
-            from: '"PrintCap Platform" <noreply@printcap.com>',
-            to,
-            subject,
-            html,
-        });
-        console.log("Email Preview URL: %s", nodemailer.getTestMessageUrl(info));
-    } catch (error) {
-        console.error("Fout bij versturen e-mail:", error);
-    }
-}
-
-
-// --- Middleware & Helpers ---
-app.use(cors()); 
+// --- Middleware ---
+app.use(cors());
 app.use(express.json());
 app.use((req, res, next) => {
     console.log(`[API Request] ${req.method} ${req.originalUrl}`);
@@ -85,51 +40,46 @@ const authMiddleware = (req, res, next) => {
         next();
     });
 };
+
 const adminMiddleware = (req, res, next) => {
     if (req.user.role !== 'admin') return res.status(403).json({ error: 'Toegang geweigerd. Adminrechten vereist.' });
     next();
 };
-async function deleteCollection(collectionRef, batchSize) {
-    const query = collectionRef.orderBy('__name__').limit(batchSize);
-    let snapshot = await query.get();
-    while (snapshot.size > 0) {
-        const batch = db.batch();
-        snapshot.docs.forEach(doc => batch.delete(doc.ref));
-        await batch.commit();
-        snapshot = await query.get();
-    }
-}
 
-// --- API Routes ---
+// ===============================================
+// API ROUTES
+// ===============================================
 
-// Authenticatie Routes
+// --- Authenticatie Routes ---
+
 app.post('/api/auth/register', async (req, res) => {
     try {
         const { bedrijfsnaam, email, password, kvk } = req.body;
-        if (!bedrijfsnaam || !email || !password || !kvk) return res.status(400).json({ error: 'Basisvelden zijn verplicht.' });
-        const userCheck = await db.collection('users').where('email', '==', email.toLowerCase()).get();
-        if (!userCheck.empty) return res.status(409).json({ error: 'Een account met dit e-mailadres bestaat al.' });
-        const passwordHash = await bcrypt.hash(password, saltRounds);
+        if (!bedrijfsnaam || !email || !password || !kvk) return res.status(400).json({ error: 'Alle velden zijn verplicht.' });
+        const existingUser = await prisma.user.findFirst({ where: { OR: [{ email: email.toLowerCase() }, { kvk: kvk }] } });
+        if (existingUser) {
+            const message = existingUser.email === email.toLowerCase() ? 'Een account met dit e-mailadres bestaat al.' : 'Een account met dit KvK-nummer bestaat al.';
+            return res.status(409).json({ error: message });
+        }
+        const passwordHash = await bcrypt.hash(password, 10);
         const emailVerificationToken = crypto.randomBytes(32).toString('hex');
-        const newUser = {
-            bedrijfsnaam, email: email.toLowerCase(), passwordHash, kvk,
-            status: 'pending_email_verification', role: 'provider', emailVerified: false,
-            emailVerificationToken, createdAt: new Date().toISOString(),
-            capabilities: [], searchableMaterials: [], averageRating: 0, reviewCount: 0
-        };
-        await db.collection('users').add(newUser);
-        const verificationUrl = `http://localhost:3000/#/verify/${emailVerificationToken}`;
-        sendEmail({ to: email, subject: 'Verifieer uw e-mailadres voor PrintCap', html: `<p>Welkom! Klik hier om uw e-mailadres te verifiëren:</p><p><a href="${verificationUrl}">${verificationUrl}</a></p>` });
-        res.status(201).json({ message: 'Registratie succesvol! Controleer uw e-mail voor de verificatielink.' });
-    } catch (error) { res.status(500).json({ error: 'Fout bij registreren.' }); }
+        await prisma.user.create({ data: { bedrijfsnaam, email: email.toLowerCase(), passwordHash, kvk, emailVerificationToken, status: 'pending_email_verification' } });
+        res.status(201).json({ message: 'Registratie succesvol! Account in afwachting van goedkeuring.' });
+    } catch (error) {
+        console.error("Fout bij registreren:", error);
+        res.status(500).json({ error: 'Fout bij registreren.' });
+    }
 });
 
 app.get('/api/auth/verify-email/:token', async (req, res) => {
     try {
         const { token } = req.params;
-        const snapshot = await db.collection('users').where('emailVerificationToken', '==', token).limit(1).get();
-        if (snapshot.empty) return res.status(404).json({ error: 'Verificatie token is ongeldig of verlopen.' });
-        await snapshot.docs[0].ref.update({ status: 'pending_approval', emailVerified: true, emailVerificationToken: null });
+        const userToVerify = await prisma.user.findUnique({ where: { emailVerificationToken: token } });
+        if (!userToVerify) return res.status(404).json({ error: 'Verificatie token is ongeldig of verlopen.' });
+        await prisma.user.update({
+            where: { id: userToVerify.id },
+            data: { status: 'pending_approval', emailVerified: true, emailVerificationToken: null },
+        });
         res.status(200).json({ message: 'E-mailadres succesvol geverifieerd.' });
     } catch (error) { res.status(500).json({ error: 'Fout bij het verifiëren van het e-mailadres.' }); }
 });
@@ -138,339 +88,426 @@ app.post('/api/auth/login', async (req, res) => {
     try {
         const { email, password } = req.body;
         if (!email || !password) return res.status(400).json({ error: 'E-mail en wachtwoord zijn verplicht.' });
-        const snapshot = await db.collection('users').where('email', '==', email.toLowerCase()).limit(1).get();
-        if (snapshot.empty) return res.status(401).json({ error: 'Ongeldige e-mail of wachtwoord.' });
-        const userDoc = snapshot.docs[0];
-        const userData = userDoc.data();
-        if (!(await bcrypt.compare(password, userData.passwordHash))) return res.status(401).json({ error: 'Ongeldige e-mail of wachtwoord.' });
-        if (userData.status !== 'active') return res.status(403).json({ error: 'Uw account is niet actief of nog niet goedgekeurd.' });
-        const userRole = userData.email === ADMIN_EMAIL ? 'admin' : userData.role;
-        const payload = { userId: userDoc.id, email: userData.email, bedrijfsnaam: userData.bedrijfsnaam, role: userRole };
+        const user = await prisma.user.findUnique({ where: { email: email.toLowerCase() } });
+        if (!user || !(await bcrypt.compare(password, user.passwordHash))) return res.status(401).json({ error: 'Ongeldige e-mail of wachtwoord.' });
+        if (user.status !== 'active') return res.status(403).json({ error: 'Uw account is niet actief of nog niet goedgekeurd.' });
+        const payload = { userId: user.id, email: user.email, bedrijfsnaam: user.bedrijfsnaam, role: user.role };
         const token = jwt.sign(payload, JWT_SECRET, { expiresIn: '8h' });
         res.status(200).json({ message: 'Succesvol ingelogd!', token, user: payload });
-    } catch (error) { res.status(500).json({ error: 'Fout bij inloggen.' }); }
+    } catch (error) {
+        console.error("Fout bij inloggen:", error);
+        res.status(500).json({ error: 'Fout bij inloggen.' });
+    }
 });
 
-// Profiel Routes
-app.get('/api/users/:userId', async (req, res) => {
-    try {
-        const userDoc = await db.collection('users').doc(req.params.userId).get();
-        if (!userDoc.exists) return res.status(404).json({ error: 'Gebruiker niet gevonden.' });
-        const userData = userDoc.data();
-        const reviewsSnapshot = await db.collection('users').doc(req.params.userId).collection('reviews').orderBy('createdAt', 'desc').get();
-        const reviews = reviewsSnapshot.docs.map(doc => doc.data());
-        const publicProfile = { bedrijfsnaam: userData.bedrijfsnaam, plaats: userData.plaats, capabilities: userData.capabilities || [], averageRating: userData.averageRating || 0, reviewCount: userData.reviewCount || 0, reviews: reviews };
-        res.status(200).json(publicProfile);
-    } catch (error) { res.status(500).json({ error: 'Kon openbaar profiel niet ophalen.' }); }
-});
+// --- Profiel & Gebruiker Routes ---
 
 app.get('/api/profile', authMiddleware, async (req, res) => {
     try {
-        const userDoc = await db.collection('users').doc(req.user.userId).get();
-        if (!userDoc.exists) return res.status(404).json({ error: 'Gebruiker niet gevonden.' });
-        const { passwordHash, ...userData } = userDoc.data();
-        res.status(200).json(userData);
+        const user = await prisma.user.findUnique({
+            where: { id: req.user.userId },
+            select: { id: true, email: true, bedrijfsnaam: true, kvk: true, status: true, role: true, capabilities: true }
+        });
+        if (!user) return res.status(404).json({ error: 'Gebruiker niet gevonden.' });
+        res.status(200).json(user);
     } catch (error) { res.status(500).json({ error: 'Kon profiel niet ophalen.' }); }
-});
-
-app.put('/api/profile', authMiddleware, async (req, res) => {
-    try {
-        const { userId } = req.user;
-        const profileData = req.body;
-        delete profileData.email; delete profileData.role; delete profileData.status; delete profileData.capabilities;
-        await db.collection('users').doc(userId).update(profileData);
-        res.status(200).json({ message: 'Profiel succesvol bijgewerkt.' });
-    } catch (error) { res.status(500).json({ error: 'Kon profiel niet bijwerken.' }); }
 });
 
 app.put('/api/profile/capabilities', authMiddleware, async (req, res) => {
     try {
-        const { userId } = req.user;
         const { capabilities } = req.body;
         if (!Array.isArray(capabilities)) return res.status(400).json({ error: 'Capabilities moet een array zijn.' });
-        const searchableMaterials = new Set();
-        capabilities.forEach(cap => {
-            if (cap.materials) { cap.materials.split(',').map(m => m.trim().toLowerCase()).filter(m => m).forEach(m => searchableMaterials.add(m)); }
-        });
-        await db.collection('users').doc(userId).update({ capabilities, searchableMaterials: Array.from(searchableMaterials) });
+        await prisma.user.update({ where: { id: req.user.userId }, data: { capabilities } });
         res.status(200).json({ message: 'Capaciteiten succesvol bijgewerkt.' });
     } catch (error) { res.status(500).json({ error: 'Kon capaciteiten niet bijwerken.' }); }
 });
 
-// Opdrachten (Jobs), Offertes (Quotes) & Marktplaats Routes
+app.get('/api/users/:userId', authMiddleware, async (req, res) => {
+    try {
+        const userProfile = await prisma.user.findUnique({
+            where: { id: req.params.userId },
+            select: { id: true, bedrijfsnaam: true, capabilities: true, reviews: { orderBy: { createdAt: 'desc' } } }
+        });
+        if (!userProfile) return res.status(404).json({ error: 'Gebruiker niet gevonden.' });
+        res.status(200).json(userProfile);
+    } catch (error) { res.status(500).json({ error: 'Kon openbaar profiel niet ophalen.' }); }
+});
+
+// --- Opdrachten, Offertes & Productie Routes ---
+
 app.post('/api/jobs', authMiddleware, async (req, res) => {
     try {
-        const { userId, bedrijfsnaam, email } = req.user;
-        const { title, description, format, quantity, material, deadline, location, isPublic } = req.body;
-        if (!title || !description || !quantity || !material) return res.status(400).json({ error: 'Vul alle vereiste velden in.' });
-        const newJob = { customerId: userId, customerName: bedrijfsnaam, customerEmail: email, title, description, specifications: { format: format || 'N.v.t.', quantity, material, location: location || null }, deadline: deadline || null, status: 'quoting', createdAt: new Date().toISOString(), winnerProviderId: null, isPublic: isPublic || false };
-        const jobRef = await db.collection('print_jobs').add(newJob);
-        let query = db.collection('users').where('status', '==', 'active').where('searchableMaterials', 'array-contains', material.trim().toLowerCase());
-        if (location && location.trim() !== '') { query = query.where('plaats', '==', location.trim()); }
-        const providersSnapshot = await query.get();
-        for (const providerDoc of providersSnapshot.docs) {
-            const provider = providerDoc.data();
-            if (providerDoc.id === userId) continue;
-            await db.collection('quote_requests').add({ jobId: jobRef.id, jobTitle: title, providerId: providerDoc.id, createdAt: new Date().toISOString() });
-            sendEmail({ to: provider.email, subject: `Nieuwe offerteaanvraag: ${title}`, html: `<p>Beste ${provider.bedrijfsnaam},</p><p>Er is een nieuwe offerteaanvraag die mogelijk interessant is voor u: "<strong>${title}</strong>".</p>` });
-        }
-        res.status(201).json({ message: 'Opdracht succesvol geplaatst!' });
+        const { title, description, format, quantity, material, deadline, isPublic } = req.body;
+        if (!title || !description || !quantity || !material) return res.status(400).json({ error: 'Titel, omschrijving, oplage en materiaal zijn verplicht.' });
+        const newJob = await prisma.printJob.create({
+            data: { title, description, quantity: parseInt(quantity, 10), material, format, isPublic, deadline: deadline ? new Date(deadline) : null, customerId: req.user.userId }
+        });
+        res.status(201).json({ message: 'Opdracht succesvol geplaatst!', job: newJob });
     } catch (error) { res.status(500).json({ error: 'Kon de opdracht niet plaatsen.' }); }
 });
 
 app.get('/api/jobs/marketplace', authMiddleware, async (req, res) => {
     try {
-        const { userId } = req.user;
-        const snapshot = await db.collection('print_jobs').where('status', '==', 'quoting').where('isPublic', '==', true).get();
-        const allPublicJobs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        const jobsForOthers = allPublicJobs.filter(job => job.customerId !== userId);
-        res.status(200).json(jobsForOthers);
-    } catch (error) { res.status(500).json({ error: 'Kon marktplaats opdrachten niet ophalen.' }); }
+        const jobs = await prisma.printJob.findMany({
+            where: {
+                status: 'quoting',
+                isPublic: true,
+                customerId: { not: req.user.userId },
+                deadline: { gte: new Date() },
+            },
+            include: { customer: { select: { bedrijfsnaam: true } } },
+            orderBy: { createdAt: 'desc' }
+        });
+        res.status(200).json(jobs);
+    } catch (error) {
+        res.status(500).json({ error: 'Kon marktplaats opdrachten niet ophalen.' });
+    }
 });
 
 app.get('/api/jobs/my-jobs', authMiddleware, async (req, res) => {
     try {
-        const { userId } = req.user;
-        const snapshot = await db.collection('print_jobs').where('customerId', '==', userId).orderBy('createdAt', 'desc').get();
-        res.status(200).json(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
-    } catch (error) { res.status(500).json({ error: 'Kon mijn opdrachten niet ophalen.' }); }
+        const myJobs = await prisma.printJob.findMany({
+            where: { 
+                customerId: req.user.userId,
+                status: { not: 'archived' } // <-- VOEG DEZE CONTROLE TOE
+            },
+            orderBy: { createdAt: 'desc' },
+            include: { _count: { select: { quotes: true } } },
+        });
+        res.status(200).json(myJobs);
+    } catch (error) {
+        res.status(500).json({ error: 'Kon mijn opdrachten niet ophalen.' });
+    }
 });
 
 app.get('/api/jobs/production', authMiddleware, async (req, res) => {
     try {
-        const { userId } = req.user;
-        const snapshot = await db.collection('print_jobs').where('winnerProviderId', '==', userId).orderBy('createdAt', 'desc').get();
-        res.status(200).json(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
-    } catch (error) { res.status(500).json({ error: 'Kon productie-opdrachten niet ophalen.' }); }
+        const productionJobs = await prisma.printJob.findMany({ 
+            where: { winnerProviderId: req.user.userId }, 
+            orderBy: { createdAt: 'desc' },
+            include: { 
+                customer: { 
+                    select: { bedrijfsnaam: true } 
+                },
+                // DEZE REGEL IS TOEGEVOEGD:
+                productionSteps: true 
+            }
+        });
+        res.status(200).json(productionJobs);
+    } catch (error) { 
+        res.status(500).json({ error: 'Kon productie-opdrachten niet ophalen.' }); 
+    }
 });
 
 app.get('/api/jobs/:id', authMiddleware, async (req, res) => {
     try {
-        const jobDoc = await db.collection('print_jobs').doc(req.params.id).get();
-        if(!jobDoc.exists) return res.status(404).json({ error: "Opdracht niet gevonden." });
-        res.status(200).json({ id: jobDoc.id, ...jobDoc.data() });
-    } catch (error) { res.status(500).json({ error: 'Kon opdrachtdetails niet ophalen.' }); }
+        const job = await prisma.printJob.findUnique({
+            where: { id: req.params.id },
+            include: { 
+                customer: { select: { id: true, bedrijfsnaam: true } }, 
+                quotes: { include: { provider: { select: { id: true, bedrijfsnaam: true } } }, orderBy: { createdAt: 'asc' } },
+                productionSteps: { orderBy: { order: 'asc' } } 
+            }
+        });
+        if (!job) return res.status(404).json({ error: 'Opdracht niet gevonden.' });
+        res.status(200).json(job);
+    } catch (error) { 
+        console.error("Fout bij ophalen job details:", error);
+        res.status(500).json({ error: 'Kon opdrachtdetails niet ophalen.' }); 
+    }
 });
 
-app.get('/api/jobs/:jobId/quotes', authMiddleware, async (req, res) => {
+app.put('/api/jobs/:jobId', authMiddleware, async (req, res) => {
     try {
-        const snapshot = await db.collection('print_jobs').doc(req.params.jobId).collection('quotes').orderBy('createdAt', 'asc').get();
-        res.status(200).json(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
-    } catch (error) { res.status(500).json({ error: 'Kon offertes niet ophalen.' }); }
+        const { jobId } = req.params;
+        const { title, description, format, quantity, material, deadline, isPublic } = req.body;
+
+        const updatedJob = await prisma.printJob.update({
+            where: { id: jobId, customerId: req.user.userId },
+            data: { title, description, format, quantity: parseInt(quantity, 10), material, deadline: deadline ? new Date(deadline) : null, isPublic }
+        });
+        res.status(200).json({ message: 'Opdracht succesvol bijgewerkt.', job: updatedJob });
+    } catch (error) {
+        res.status(403).json({ error: 'Kon opdracht niet bijwerken.' });
+    }
+});
+
+app.put('/api/jobs/:jobId/archive', authMiddleware, async (req, res) => {
+    try {
+        const { jobId } = req.params;
+        const { userId } = req.user;
+
+        // Veiligheidscontrole: update alleen als de gebruiker de eigenaar is
+        await prisma.printJob.update({
+            where: {
+                id: jobId,
+                customerId: userId,
+            },
+            data: {
+                status: 'archived',
+            }
+        });
+        res.status(200).json({ message: 'Opdracht succesvol gearchiveerd.' });
+    } catch (error) {
+        // Vangt de fout op als de opdracht niet bestaat of niet van de gebruiker is
+        res.status(403).json({ error: 'Kon opdracht niet archiveren.' });
+    }
+});
+
+app.post('/api/jobs/:jobId/steps', authMiddleware, async (req, res) => {
+    try {
+        const { jobId } = req.params;
+        const { title, order } = req.body;
+        const newStep = await prisma.productionStep.create({
+            data: { jobId, title, order }
+        });
+        res.status(201).json(newStep);
+    } catch (error) {
+        res.status(500).json({ error: 'Kon productiestap niet toevoegen.' });
+    }
+});
+
+app.put('/api/steps/:stepId', authMiddleware, async (req, res) => {
+    try {
+        const { stepId } = req.params;
+        const { status } = req.body;
+        const updatedStep = await prisma.productionStep.update({
+            where: { id: stepId },
+            data: { status },
+            include: { job: { select: { customerId: true } } } 
+        });
+
+        if (updatedStep.job.customerId) {
+            const message = `De status van productiestap '${updatedStep.title}' voor uw opdracht is bijgewerkt naar: ${status}.`;
+            await prisma.notification.create({
+                data: { userId: updatedStep.job.customerId, message: message }
+            });
+        }
+        res.json(updatedStep);
+    } catch (error) {
+        console.error("Fout bij updaten productiestap:", error);
+        res.status(500).json({ error: 'Kon status van stap niet aanpassen.' });
+    }
 });
 
 app.get('/api/quote-requests', authMiddleware, async (req, res) => {
     try {
-        const { userId } = req.user;
-        const snapshot = await db.collection('quote_requests').where('providerId', '==', userId).where('status', '==', 'pending').get();
-        res.status(200).json(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+        const jobs = await prisma.printJob.findMany({
+            where: { status: 'quoting', isPublic: true, customerId: { not: req.user.userId } },
+            orderBy: { createdAt: 'desc' }
+        });
+        res.status(200).json(jobs);
     } catch(error) { res.status(500).json({ error: 'Kon offerteverzoeken niet ophalen.' }); }
 });
 
 app.get('/api/quotes/my-submitted', authMiddleware, async (req, res) => {
     try {
-        const { userId } = req.user;
-        const snapshot = await db.collectionGroup('quotes').where('providerId', '==', userId).orderBy('createdAt', 'desc').get();
-        const quotes = [];
-        for (const doc of snapshot.docs) {
-            const quoteData = doc.data();
-            const jobRef = doc.ref.parent.parent;
-            const jobDoc = await jobRef.get();
-            const jobData = jobDoc.data();
-            quotes.push({ id: doc.id, ...quoteData, jobId: jobRef.id, jobTitle: jobData.title });
-        }
-        res.status(200).json(quotes);
+        const quotes = await prisma.quote.findMany({
+            where: { providerId: req.user.userId },
+            include: { job: { select: { title: true, id: true } } },
+            orderBy: { createdAt: 'desc' }
+        });
+        res.status(200).json(quotes.map(q => ({...q, jobId: q.job.id})));
     } catch(error) { res.status(500).json({ error: 'Kon ingediende offertes niet ophalen.' }); }
 });
 
 app.post('/api/jobs/:jobId/quotes', authMiddleware, async (req, res) => {
     try {
         const { jobId } = req.params;
-        const { userId, bedrijfsnaam } = req.user;
+        const { userId } = req.user;
+        const job = await prisma.printJob.findUnique({ where: { id: jobId } });
+        if (!job) return res.status(404).json({ error: 'Opdracht niet gevonden.' });
+        if (job.customerId === userId) return res.status(403).json({ error: 'U kunt geen offerte indienen voor uw eigen opdracht.' });
+        
         const { price, deliveryTime, comments } = req.body;
         if (!price || !deliveryTime) return res.status(400).json({ error: 'Prijs en levertijd zijn verplicht.' });
-        const jobDoc = await db.collection('print_jobs').doc(jobId).get();
-        if (!jobDoc.exists) return res.status(404).json({ error: 'Opdracht niet gevonden.' });
-        const jobData = jobDoc.data();
-        const newQuote = { providerId: userId, providerName: bedrijfsnaam, price, deliveryTime, comments: comments || '', status: 'offered', createdAt: new Date().toISOString() };
-        await jobDoc.ref.collection('quotes').add(newQuote);
-        const requestQuery = await db.collection('quote_requests').where('jobId', '==', jobId).where('providerId', '==', userId).limit(1).get();
-        if (!requestQuery.empty) await requestQuery.docs[0].ref.update({ status: 'submitted' });
-        sendEmail({ to: jobData.customerEmail, subject: `Nieuwe offerte ontvangen voor: ${jobData.title}`, html: `<p>Beste ${jobData.customerName},</p><p>U heeft een nieuwe offerte ontvangen van <strong>${bedrijfsnaam}</strong>.</p>` });
-        res.status(201).json({ message: 'Offerte succesvol ingediend.' });
+
+        const newQuote = await prisma.quote.create({
+            data: { price: parseFloat(price), deliveryTime, comments, jobId: jobId, providerId: userId }
+        });
+        res.status(201).json({ message: 'Offerte succesvol ingediend.', quote: newQuote });
     } catch (error) { res.status(500).json({ error: 'Kon offerte niet indienen.' }); }
 });
 
 app.post('/api/jobs/:jobId/quotes/:quoteId/accept', authMiddleware, async (req, res) => {
-    const { jobId, quoteId } = req.params;
-    const { userId } = req.user;
-    const jobRef = db.collection('print_jobs').doc(jobId);
-    const jobDoc = await jobRef.get();
-    if (!jobDoc.exists || jobDoc.data().customerId !== userId) return res.status(403).json({ error: 'Geen toegang.' });
-    if (jobDoc.data().status !== 'quoting') return res.status(400).json({ error: 'Opdracht niet open voor offertes.' });
     try {
-        const batch = db.batch();
-        const acceptedQuoteRef = jobRef.collection('quotes').doc(quoteId);
-        const acceptedQuoteDoc = await acceptedQuoteRef.get();
-        const winnerProviderId = acceptedQuoteDoc.data().providerId;
-        batch.update(jobRef, { status: 'in_production', winnerProviderId: winnerProviderId });
-        batch.update(acceptedQuoteRef, { status: 'accepted' });
-        const allQuotesSnapshot = await jobRef.collection('quotes').get();
-        allQuotesSnapshot.docs.forEach(doc => { if (doc.id !== quoteId) batch.update(doc.ref, { status: 'rejected' }); });
-        await batch.commit();
-        for (const doc of allQuotesSnapshot.docs) {
-            const quoteData = doc.data();
-            const providerQuery = await db.collection('users').where('bedrijfsnaam', '==', quoteData.providerName).limit(1).get();
-            if (providerQuery.empty) continue;
-            const providerEmail = providerQuery.docs[0].data().email;
-            if (doc.id === quoteId) {
-                sendEmail({ to: providerEmail, subject: `Gefeliciteerd! Uw offerte voor "${jobDoc.data().title}" is geaccepteerd!`, html: `<p>Beste ${quoteData.providerName},</p><p>Gefeliciteerd! Uw offerte voor "<strong>${jobDoc.data().title}</strong>" is geaccepteerd.</p>` });
-            } else {
-                sendEmail({ to: providerEmail, subject: `Update over uw offerte voor "${jobDoc.data().title}"`, html: `<p>Beste ${quoteData.providerName},</p><p>De klant heeft een andere keuze gemaakt voor de opdracht "<strong>${jobDoc.data().title}</strong>".</p>` });
-            }
+        const { jobId, quoteId } = req.params;
+        const acceptedQuote = await prisma.quote.findUnique({ where: { id: quoteId } });
+        if (!acceptedQuote) return res.status(404).json({ error: 'Offerte niet gevonden.' });
+        
+        const allQuotes = await prisma.quote.findMany({ where: { jobId: jobId } });
+        await prisma.$transaction([
+            prisma.printJob.update({ where: { id: jobId }, data: { status: 'in_production', winnerProviderId: acceptedQuote.providerId } }),
+            prisma.quote.update({ where: { id: quoteId }, data: { status: 'accepted' } }),
+            prisma.quote.updateMany({ where: { jobId: jobId, id: { not: quoteId } }, data: { status: 'rejected' } })
+        ]);
+
+        for (const quote of allQuotes) {
+            let message = quote.id === quoteId ? `Gefeliciteerd! Je offerte voor opdracht #${jobId.slice(-6).toUpperCase()} is geaccepteerd.` : `Helaas, je offerte voor opdracht #${jobId.slice(-6).toUpperCase()} is afgewezen.`;
+            await prisma.notification.create({ data: { userId: quote.providerId, message: message } });
         }
         res.status(200).json({ message: 'Offerte succesvol geaccepteerd!' });
     } catch (error) { res.status(500).json({ error: 'Kon offerte niet accepteren.' }); }
 });
 
-app.put('/api/jobs/:jobId/status', authMiddleware, async (req, res) => {
-    const { jobId } = req.params;
-    const { userId } = req.user;
-    const { status } = req.body;
-    if (!status) return res.status(400).json({ error: 'Nieuwe status is verplicht.' });
+
+// --- Capaciteit Aanbod (Offers) Routes ---
+
+app.get('/api/offers/my-offers', authMiddleware, async (req, res) => {
     try {
-        const jobRef = db.collection('print_jobs').doc(jobId);
-        const jobDoc = await jobRef.get();
-        if (!jobDoc.exists) return res.status(404).json({ error: 'Opdracht niet gevonden.' });
-        if (jobDoc.data().winnerProviderId !== userId) return res.status(403).json({ error: 'Alleen de winnende drukkerij kan de status aanpassen.' });
-        await jobRef.update({ status: status });
-        res.status(200).json({ message: `Status bijgewerkt naar: ${status}` });
-    } catch (error) { res.status(500).json({ error: 'Kon de status niet bijwerken.' }); }
+        const offers = await prisma.offer.findMany({
+            where: { ownerId: req.user.userId },
+            orderBy: { createdAt: 'desc' }
+        });
+        res.status(200).json(offers);
+    } catch (error) { res.status(500).json({ error: 'Kon mijn aanbod niet ophalen.' }); }
 });
 
-app.post('/api/jobs/:jobId/reviews', authMiddleware, async (req, res) => {
-    const { jobId } = req.params;
-    const { userId } = req.user;
-    const { rating, comment } = req.body;
-    if (!rating || rating < 1 || rating > 5) return res.status(400).json({ error: "Een score tussen 1 en 5 is verplicht." });
-    try {
-        const jobRef = db.collection('print_jobs').doc(jobId);
-        const jobDoc = await jobRef.get();
-        if (!jobDoc.exists) return res.status(404).json({ error: "Opdracht niet gevonden." });
-        const jobData = jobDoc.data();
-        if (jobData.customerId !== userId) return res.status(403).json({ error: "Alleen de opdrachtgever kan een review achterlaten." });
-        if (jobData.status !== 'completed') return res.status(400).json({ error: "Reviews kunnen alleen voor voltooide opdrachten." });
-        if (jobData.reviewSubmitted) return res.status(400).json({ error: "Er is al een review ingediend." });
-        const providerId = jobData.winnerProviderId;
-        const providerRef = db.collection('users').doc(providerId);
-        await providerRef.collection('reviews').add({ jobId, rating, comment: comment || "", customerName: jobData.customerName, createdAt: new Date().toISOString() });
-        const providerDoc = await providerRef.get();
-        const providerData = providerDoc.data();
-        const oldRatingTotal = (providerData.averageRating || 0) * (providerData.reviewCount || 0);
-        const newReviewCount = (providerData.reviewCount || 0) + 1;
-        const newAverageRating = (oldRatingTotal + rating) / newReviewCount;
-        await providerRef.update({ averageRating: newAverageRating, reviewCount: newReviewCount });
-        await jobRef.update({ reviewSubmitted: true });
-        res.status(201).json({ message: "Bedankt voor uw review!" });
-    } catch (error) { res.status(500).json({ error: "Kon de review niet indienen." }); }
-});
-
-// Capaciteit Aanbod (Offers) Routes
 app.get('/api/offers/search', authMiddleware, async (req, res) => {
     try {
-        let offersRef = db.collection('offers');
-        if (req.query.machineType) offersRef = offersRef.where('machineType', '==', req.query.machineType);
-        const snapshot = await offersRef.get();
-        let offers = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        if (req.query.excludeOwner) offers = offers.filter(offer => offer.ownerId !== req.user.userId);
+        const offers = await prisma.offer.findMany({
+            where: { ownerId: { not: req.user.userId } },
+            include: { owner: { select: { bedrijfsnaam: true } } },
+            orderBy: { createdAt: 'desc' }
+        });
         res.status(200).json(offers);
-    } catch (error) { res.status(500).json({ error: 'Kon zoekresultaten niet ophalen.' }); }
+    } catch (error) { res.status(500).json({ error: 'Kon aanbod niet ophalen.' }); }
 });
 
 app.post('/api/offers', authMiddleware, async (req, res) => {
     try {
-        const { bedrijfsnaam, userId } = req.user;
-        const newOffer = { ...req.body, owner: bedrijfsnaam, ownerId: userId, createdAt: new Date().toISOString() };
-        await db.collection('offers').add(newOffer);
-        res.status(201).json({ message: 'Aanbod geplaatst!' });
+        const { machineType, material, capacityDetails, price } = req.body;
+        await prisma.offer.create({ data: { machineType, material, capacityDetails, price, ownerId: req.user.userId } });
+        res.status(201).json({ message: 'Aanbod succesvol geplaatst!' });
     } catch (error) { res.status(500).json({ error: 'Kon aanbieding niet toevoegen.' }); }
 });
 
 app.get('/api/offers/:id', authMiddleware, async (req, res) => {
     try {
-        const offerId = req.params.id;
-        const offerDoc = await db.collection('offers').doc(offerId).get();
-        if (!offerDoc.exists) return res.status(404).json({ error: 'Aanbod niet gevonden.' });
-        res.status(200).json({ id: offerDoc.id, ...offerDoc.data() });
+        const offer = await prisma.offer.findUnique({
+            where: { id: req.params.id },
+            include: { owner: { select: { bedrijfsnaam: true } } }
+        });
+        if (!offer) return res.status(404).json({ error: 'Aanbod niet gevonden.' });
+        res.status(200).json(offer);
     } catch (error) { res.status(500).json({ error: 'Kon aanbod niet ophalen.' }); }
 });
 
-app.delete('/api/offers/:id', authMiddleware, async (req, res) => {
+
+// --- Notificatie Routes ---
+app.get('/api/notifications', authMiddleware, async (req, res) => {
     try {
-        const { userId } = req.user;
-        const offerRef = db.collection('offers').doc(req.params.id);
-        const offerDoc = await offerRef.get();
-        if (!offerDoc.exists) return res.status(404).json({ error: 'Aanbod niet gevonden.' });
-        if (offerDoc.data().ownerId !== userId) return res.status(403).json({ error: 'Niet geautoriseerd.' });
-        await offerRef.delete();
-        res.status(200).json({ message: 'Aanbod succesvol verwijderd.' });
-    } catch (error) { res.status(500).json({ error: 'Kon het aanbod niet verwijderen.' }); }
+        const notifications = await prisma.notification.findMany({
+            where: { userId: req.user.userId },
+            orderBy: { createdAt: 'desc' },
+        });
+        res.json(notifications);
+    } catch (error) {
+        res.status(500).json({ error: 'Kon notificaties niet ophalen.' });
+    }
 });
 
-// Admin Routes
+app.put('/api/notifications/:id/read', authMiddleware, async (req, res) => {
+    try {
+        await prisma.notification.updateMany({
+            where: { id: req.params.id, userId: req.user.userId },
+            data: { isRead: true },
+        });
+        res.status(200).json({ message: 'Notificatie als gelezen gemarkeerd.' });
+    } catch (error) {
+        res.status(500).json({ error: 'Kon notificatie niet bijwerken.' });
+    }
+});
+
+
+// --- Admin Routes ---
+
 app.get('/api/admin/users', authMiddleware, adminMiddleware, async (req, res) => {
     try {
-        const snapshot = await db.collection('users').get();
-        const users = snapshot.docs.map(doc => { const { passwordHash, ...data } = doc.data(); return { id: doc.id, ...data }; });
+        const users = await prisma.user.findMany({
+            select: { id: true, bedrijfsnaam: true, email: true, kvk: true, status: true, role: true, emailVerified: true }
+        });
         res.status(200).json(users);
     } catch (error) { res.status(500).json({ error: 'Kon gebruikers niet ophalen.' }); }
 });
 
 app.post('/api/admin/users/:userId/approve', authMiddleware, adminMiddleware, async (req, res) => {
     try {
-        await db.collection('users').doc(req.params.userId).update({ status: 'active' });
+        await prisma.user.update({ where: { id: req.params.userId }, data: { status: 'active' } });
         res.status(200).json({ message: 'Gebruiker succesvol goedgekeurd.' });
     } catch (error) { res.status(500).json({ error: 'Kon gebruiker niet goedkeuren.' }); }
 });
 
+app.post('/api/admin/users/:userId/force-verify', authMiddleware, adminMiddleware, async (req, res) => {
+    try {
+        await prisma.user.update({
+            where: { id: req.params.userId },
+            data: { status: 'pending_approval', emailVerified: true, emailVerificationToken: null }
+        });
+        res.status(200).json({ message: 'E-mailadres van gebruiker handmatig geverifieerd.' });
+    } catch (error) { res.status(500).json({ error: 'Kon e-mailadres niet handmatig verifiëren.' }); }
+});
+
 app.delete('/api/admin/users/:userId/reject', authMiddleware, adminMiddleware, async (req, res) => {
     try {
-        await db.collection('users').doc(req.params.userId).delete();
+        await prisma.user.delete({ where: { id: req.params.userId } });
         res.status(200).json({ message: 'Gebruiker succesvol afgewezen en verwijderd.' });
     } catch (error) { res.status(500).json({ error: 'Kon gebruiker niet afwijzen.' }); }
 });
 
-app.delete('/api/admin/reset-data', authMiddleware, adminMiddleware, async (req, res) => {
+app.delete('/api/admin/jobs/:jobId', authMiddleware, adminMiddleware, async (req, res) => {
     try {
-        await Promise.all([
-            deleteCollection(db.collection('offers'), 100),
-            deleteCollection(db.collection('print_jobs'), 100),
-            deleteCollection(db.collection('quote_requests'), 100)
-        ]);
-        const usersSnapshot = await db.collection('users').get();
-        const batch = db.batch();
-        usersSnapshot.docs.forEach(doc => { if (doc.data().email !== ADMIN_EMAIL) { batch.delete(doc.ref); } });
-        await batch.commit();
-        res.status(200).json({ message: 'Alle platform data (behalve admin) is succesvol verwijderd.' });
-    } catch (error) {
-        res.status(500).json({ error: 'Kon de platform data niet resetten.' });
-    }
+        await prisma.printJob.delete({ where: { id: req.params.jobId } });
+        res.status(200).json({ message: 'Opdracht succesvol verwijderd door admin.' });
+    } catch (error) { res.status(500).json({ error: "Kon opdracht niet verwijderen." }); }
 });
 
-app.post('/api/admin/users/:userId/force-verify', authMiddleware, adminMiddleware, async (req, res) => {
+// In server.js
+
+app.get('/api/archive', authMiddleware, async (req, res) => {
     try {
-        const userRef = db.collection('users').doc(req.params.userId);
-        const userDoc = await userRef.get();
-        if (!userDoc.exists) return res.status(404).json({ error: 'Gebruiker niet gevonden.' });
-        await userRef.update({ status: 'pending_approval', emailVerified: true, emailVerificationToken: null });
-        res.status(200).json({ message: 'E-mailadres van gebruiker handmatig geverifieerd.' });
+        const { searchTerm, startDate, endDate } = req.query; // Haal zoekparameters op
+        
+        let whereClause = {
+            OR: [
+                { customerId: req.user.userId },
+                { winnerProviderId: req.user.userId }
+            ],
+            status: 'archived'
+        };
+
+        // Voeg zoekterm toe aan de query als die er is
+        if (searchTerm) {
+            whereClause.title = {
+                contains: searchTerm,
+                mode: 'insensitive' // Niet hoofdlettergevoelig
+            };
+        }
+
+        // Voeg datumfilters toe als die er zijn
+        if (startDate && endDate) {
+            whereClause.updatedAt = {
+                gte: new Date(startDate),
+                lte: new Date(endDate),
+            };
+        }
+
+        const archivedJobs = await prisma.printJob.findMany({
+            where: whereClause, // Gebruik de opgebouwde 'where' clause
+            include: {
+                customer: { select: { bedrijfsnaam: true } },
+                winner: { select: { bedrijfsnaam: true } }
+            },
+            orderBy: { updatedAt: 'desc' }
+        });
+        res.status(200).json(archivedJobs);
     } catch (error) {
-        res.status(500).json({ error: 'Kon e-mailadres niet handmatig verifiëren.' });
+        console.error("Fout bij ophalen archief:", error);
+        res.status(500).json({ error: 'Kon archief niet ophalen.' });
     }
 });
-
 
 // --- Start de server ---
 app.listen(PORT, () => {
-    console.log(`PrintCap API Server draait nu op http://localhost:${PORT}`);
+    console.log(`CapaHub API Server draait nu op http://localhost:${PORT}`);
 });

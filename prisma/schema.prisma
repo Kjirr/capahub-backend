@@ -1,0 +1,119 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                      String      @id @default(cuid())
+  email                   String      @unique
+  bedrijfsnaam            String
+  kvk                     String      @unique
+  passwordHash            String
+  status                  String      @default("pending_approval")
+  role                    String      @default("provider")
+  emailVerified           Boolean     @default(false)
+  emailVerificationToken  String?     @unique
+  capabilities            Json        @default("[]") // Voor opslaan van machinepark etc.
+  createdAt               DateTime    @default(now())
+  updatedAt               DateTime    @updatedAt
+  
+  jobs                    PrintJob[]  @relation("CustomerJobs")
+  wonJobs                 PrintJob[]  @relation("WonJobs")
+  quotes                  Quote[]     @relation("ProviderQuotes")
+  offers                  Offer[]     @relation("ProviderOffers")
+  reviews                 Review[]    @relation("ProviderReviews")
+  notifications   Notification[]
+}
+
+model PrintJob {
+  id                String    @id @default(cuid())
+  title             String
+  description       String
+  quantity          Int
+  material          String
+  format            String?   
+  deadline          DateTime?
+  status            String    @default("quoting")
+  isPublic          Boolean   @default(false) // Voor de marktplaats
+  reviewSubmitted   Boolean   @default(false)
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  customerId        String
+  customer          User      @relation("CustomerJobs", fields: [customerId], references: [id])
+  
+  winnerProviderId  String?
+  winner            User?     @relation("WonJobs", fields: [winnerProviderId], references: [id])
+  
+  quotes            Quote[]
+  reviews           Review[]
+  productionSteps ProductionStep[]
+}
+
+model Quote {
+  id              String    @id @default(cuid())
+  price           Float
+  deliveryTime    String
+  comments        String?
+  status          String    @default("offered")
+  createdAt       DateTime  @default(now())
+  statusUpdatedAt DateTime  @updatedAt
+  jobId           String
+  job             PrintJob  @relation(fields: [jobId], references: [id])
+  
+  providerId      String
+  provider        User      @relation("ProviderQuotes", fields: [providerId], references: [id])
+}
+
+model Offer {
+  id              String   @id @default(cuid())
+  machineType     String
+  material        String
+  capacityDetails String
+  price           String
+  createdAt       DateTime @default(now())
+  
+  ownerId         String
+  owner           User     @relation("ProviderOffers", fields: [ownerId], references: [id])
+}
+
+model Review {
+  id          String   @id @default(cuid())
+  rating      Int
+  comment     String?
+  createdAt   DateTime @default(now())
+
+  jobId       String
+  job         PrintJob @relation(fields: [jobId], references: [id])
+  
+  providerId  String
+  provider    User     @relation("ProviderReviews", fields: [providerId], references: [id])
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  message   String
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  // Relatie: Elke notificatie is voor één specifieke gebruiker
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+}
+
+model ProductionStep {
+  id        String   @id @default(cuid())
+  title     String   // bv. "Prepress-controle", "Drukken", "Afwerking"
+  status    String   @default("pending") // bv. pending, in_progress, completed
+  notes     String?
+  order     Int      // Om de volgorde te bepalen
+  createdAt DateTime @default(now())
+
+  // Relatie: Elke stap hoort bij één opdracht
+  jobId     String
+  job       PrintJob @relation(fields: [jobId], references: [id], onDelete: Cascade)
+}

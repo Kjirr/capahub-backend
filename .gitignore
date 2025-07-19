@@ -1,0 +1,8 @@
+# Negeer de Firebase Admin credentials
+serviceAccountKey.json
+
+# Negeer alle geïnstalleerde packages
+node_modules
+Archief.zip
+
+/generated/prisma
