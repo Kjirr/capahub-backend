@@ -1,0 +1,1748 @@
+2025-07-22 13:54:40 error: Dit is een ROOD error-bericht.
+2025-07-22 14:57:49 error: Fout bij ophalen 'getMyJobs' voor gebruiker cmdcw09um0000divsdq21jcg3: Cannot read properties of undefined (reading 'findMany')
+2025-07-22 14:57:49 error: Fout bij ophalen 'getMyJobs' voor gebruiker cmdcw09um0000divsdq21jcg3: Cannot read properties of undefined (reading 'findMany')
+2025-07-22 15:07:53 error: Fout bij ophalen 'getMyJobs' voor gebruiker cmdcw09um0000divsdq21jcg3: 
+Invalid `prisma.printJob.findMany()` invocation in
+/Users/rijkbouwer/PrintCap-Project/printcap/controllers/job.controller.js:20:44
+
+  17 
+  18 try {
+  19     // Zoek alle opdrachten in de database die van deze gebruiker zijn.
+→ 20     const jobs = await prisma.printJob.findMany({
+           where: {
+             userId: "cmdcw09um0000divsdq21jcg3",
+             ~~~~~~
+         ?   AND?: PrintJobWhereInput | PrintJobWhereInput[],
+         ?   OR?: PrintJobWhereInput[],
+         ?   NOT?: PrintJobWhereInput | PrintJobWhereInput[],
+         ?   id?: StringFilter | String,
+         ?   title?: StringFilter | String,
+         ?   description?: StringFilter | String,
+         ?   quantity?: IntFilter | Int,
+         ?   material?: StringFilter | String,
+         ?   format?: StringNullableFilter | String | Null,
+         ?   deadline?: DateTimeNullableFilter | DateTime | Null,
+         ?   status?: StringFilter | String,
+         ?   isPublic?: BoolFilter | Boolean,
+         ?   reviewSubmitted?: BoolFilter | Boolean,
+         ?   createdAt?: DateTimeFilter | DateTime,
+         ?   updatedAt?: DateTimeFilter | DateTime,
+         ?   customerId?: StringFilter | String,
+         ?   winnerProviderId?: StringNullableFilter | String | Null,
+         ?   customer?: UserScalarRelationFilter | UserWhereInput,
+         ?   winner?: UserNullableScalarRelationFilter | UserWhereInput | Null,
+         ?   quotes?: QuoteListRelationFilter,
+         ?   reviews?: ReviewListRelationFilter,
+         ?   productionSteps?: ProductionStepListRelationFilter
+           },
+           orderBy: {
+             createdAt: "desc"
+           }
+         })
+
+Unknown argument `userId`. Available options are marked with ?.
+2025-07-22 15:07:53 error: Fout bij ophalen 'getMyJobs' voor gebruiker cmdcw09um0000divsdq21jcg3: 
+Invalid `prisma.printJob.findMany()` invocation in
+/Users/rijkbouwer/PrintCap-Project/printcap/controllers/job.controller.js:20:44
+
+  17 
+  18 try {
+  19     // Zoek alle opdrachten in de database die van deze gebruiker zijn.
+→ 20     const jobs = await prisma.printJob.findMany({
+           where: {
+             userId: "cmdcw09um0000divsdq21jcg3",
+             ~~~~~~
+         ?   AND?: PrintJobWhereInput | PrintJobWhereInput[],
+         ?   OR?: PrintJobWhereInput[],
+         ?   NOT?: PrintJobWhereInput | PrintJobWhereInput[],
+         ?   id?: StringFilter | String,
+         ?   title?: StringFilter | String,
+         ?   description?: StringFilter | String,
+         ?   quantity?: IntFilter | Int,
+         ?   material?: StringFilter | String,
+         ?   format?: StringNullableFilter | String | Null,
+         ?   deadline?: DateTimeNullableFilter | DateTime | Null,
+         ?   status?: StringFilter | String,
+         ?   isPublic?: BoolFilter | Boolean,
+         ?   reviewSubmitted?: BoolFilter | Boolean,
+         ?   createdAt?: DateTimeFilter | DateTime,
+         ?   updatedAt?: DateTimeFilter | DateTime,
+         ?   customerId?: StringFilter | String,
+         ?   winnerProviderId?: StringNullableFilter | String | Null,
+         ?   customer?: UserScalarRelationFilter | UserWhereInput,
+         ?   winner?: UserNullableScalarRelationFilter | UserWhereInput | Null,
+         ?   quotes?: QuoteListRelationFilter,
+         ?   reviews?: ReviewListRelationFilter,
+         ?   productionSteps?: ProductionStepListRelationFilter
+           },
+           orderBy: {
+             createdAt: "desc"
+           }
+         })
+
+Unknown argument `userId`. Available options are marked with ?.
+2025-07-22 15:09:13 error: Fout bij ophalen 'getMyJobs' voor gebruiker cmdcw09um0000divsdq21jcg3: 
+Invalid `prisma.printJob.findMany()` invocation in
+/Users/rijkbouwer/PrintCap-Project/printcap/controllers/job.controller.js:20:44
+
+  17 
+  18 try {
+  19     // Zoek alle opdrachten in de database die van deze gebruiker zijn.
+→ 20     const jobs = await prisma.printJob.findMany({
+           where: {
+             userId: "cmdcw09um0000divsdq21jcg3",
+             ~~~~~~
+         ?   AND?: PrintJobWhereInput | PrintJobWhereInput[],
+         ?   OR?: PrintJobWhereInput[],
+         ?   NOT?: PrintJobWhereInput | PrintJobWhereInput[],
+         ?   id?: StringFilter | String,
+         ?   title?: StringFilter | String,
+         ?   description?: StringFilter | String,
+         ?   quantity?: IntFilter | Int,
+         ?   material?: StringFilter | String,
+         ?   format?: StringNullableFilter | String | Null,
+         ?   deadline?: DateTimeNullableFilter | DateTime | Null,
+         ?   status?: StringFilter | String,
+         ?   isPublic?: BoolFilter | Boolean,
+         ?   reviewSubmitted?: BoolFilter | Boolean,
+         ?   createdAt?: DateTimeFilter | DateTime,
+         ?   updatedAt?: DateTimeFilter | DateTime,
+         ?   customerId?: StringFilter | String,
+         ?   winnerProviderId?: StringNullableFilter | String | Null,
+         ?   customer?: UserScalarRelationFilter | UserWhereInput,
+         ?   winner?: UserNullableScalarRelationFilter | UserWhereInput | Null,
+         ?   quotes?: QuoteListRelationFilter,
+         ?   reviews?: ReviewListRelationFilter,
+         ?   productionSteps?: ProductionStepListRelationFilter
+           },
+           orderBy: {
+             createdAt: "desc"
+           }
+         })
+
+Unknown argument `userId`. Available options are marked with ?.
+2025-07-22 15:09:13 error: Fout bij ophalen 'getMyJobs' voor gebruiker cmdcw09um0000divsdq21jcg3: 
+Invalid `prisma.printJob.findMany()` invocation in
+/Users/rijkbouwer/PrintCap-Project/printcap/controllers/job.controller.js:20:44
+
+  17 
+  18 try {
+  19     // Zoek alle opdrachten in de database die van deze gebruiker zijn.
+→ 20     const jobs = await prisma.printJob.findMany({
+           where: {
+             userId: "cmdcw09um0000divsdq21jcg3",
+             ~~~~~~
+         ?   AND?: PrintJobWhereInput | PrintJobWhereInput[],
+         ?   OR?: PrintJobWhereInput[],
+         ?   NOT?: PrintJobWhereInput | PrintJobWhereInput[],
+         ?   id?: StringFilter | String,
+         ?   title?: StringFilter | String,
+         ?   description?: StringFilter | String,
+         ?   quantity?: IntFilter | Int,
+         ?   material?: StringFilter | String,
+         ?   format?: StringNullableFilter | String | Null,
+         ?   deadline?: DateTimeNullableFilter | DateTime | Null,
+         ?   status?: StringFilter | String,
+         ?   isPublic?: BoolFilter | Boolean,
+         ?   reviewSubmitted?: BoolFilter | Boolean,
+         ?   createdAt?: DateTimeFilter | DateTime,
+         ?   updatedAt?: DateTimeFilter | DateTime,
+         ?   customerId?: StringFilter | String,
+         ?   winnerProviderId?: StringNullableFilter | String | Null,
+         ?   customer?: UserScalarRelationFilter | UserWhereInput,
+         ?   winner?: UserNullableScalarRelationFilter | UserWhereInput | Null,
+         ?   quotes?: QuoteListRelationFilter,
+         ?   reviews?: ReviewListRelationFilter,
+         ?   productionSteps?: ProductionStepListRelationFilter
+           },
+           orderBy: {
+             createdAt: "desc"
+           }
+         })
+
+Unknown argument `userId`. Available options are marked with ?.
+2025-07-23 21:00:51 error: Fout bij aanmaken aanbod door gebruiker cmdcw09um0000divsdq21jcg3: 
+Invalid `prisma.offer.create()` invocation in
+/Users/rijkbouwer/PrintCap-Project/printcap/controllers/offer.controller.js:28:45
+
+  25 if (!machineType || !material || !capacityDetails || !price) {
+  26     return res.status(400).json({ error: 'Alle velden zijn verplicht.' });
+  27 }
+→ 28 const newOffer = await prisma.offer.create({
+       data: {
+         machineType: "Tauro 2500",
+         material: "papier",
+         capacityDetails: "gaat als een speer",
+         price: "m2  10 euro",
+         ownerId: "cmdcw09um0000divsdq21jcg3",
+     +   availableFrom: DateTime
+       }
+     })
+
+Argument `availableFrom` is missing.
+2025-07-23 21:07:15 error: Fout bij aanmaken aanbod door gebruiker cmdcw09um0000divsdq21jcg3: 
+Invalid `prisma.offer.create()` invocation in
+/Users/rijkbouwer/PrintCap-Project/printcap/controllers/offer.controller.js:28:45
+
+  25 if (!machineType || !material || !capacityDetails || !price) {
+  26     return res.status(400).json({ error: 'Alle velden zijn verplicht.' });
+  27 }
+→ 28 const newOffer = await prisma.offer.create({
+       data: {
+         machineType: "Tauro 2500",
+         material: "honingraat 10 mm",
+         capacityDetails: "helemaal niet",
+         price: "m2  10 euro",
+         ownerId: "cmdcw09um0000divsdq21jcg3",
+     +   availableFrom: DateTime
+       }
+     })
+
+Argument `availableFrom` is missing.
+2025-07-23 21:11:07 error: Fout bij aanmaken aanbod door gebruiker cmdcw09um0000divsdq21jcg3: 
+Invalid `prisma.offer.create()` invocation in
+/Users/rijkbouwer/PrintCap-Project/printcap/controllers/offer.controller.js:28:45
+
+  25 if (!machineType || !material || !capacityDetails || !price) {
+  26     return res.status(400).json({ error: 'Alle velden zijn verplicht.' });
+  27 }
+→ 28 const newOffer = await prisma.offer.create({
+       data: {
+         machineType: "Tauro 2500",
+         material: "honingraat 10 mm",
+         capacityDetails: "helemaal niet",
+         price: "m2  10 euro",
+         ownerId: "cmdcw09um0000divsdq21jcg3",
+     +   availableFrom: DateTime
+       }
+     })
+
+Argument `availableFrom` is missing.
+2025-07-24 09:15:35 error: Fout bij admin setup: 
+Invalid `prisma.user.create()` invocation in
+/Users/rijkbouwer/PrintCap-Project/printcap/controllers/admin.controller.js:40:27
+
+  37 }
+  38 
+  39 const passwordHash = await bcrypt.hash(password, 10);
+→ 40 await prisma.user.create({
+       data: {
+         email: "admin@capahub.com",
+         passwordHash: "$2b$10$VCREnZlc2/FLP3GEK7SHAOXnUo69/fJ0jW7Ykscdjk3ueF6tNETLe",
+         role: "admin",
+         status: "active",
+         emailVerified: true,
+     +   bedrijfsnaam: String
+       }
+     })
+
+Argument `bedrijfsnaam` is missing.
+2025-07-24 09:18:23 error: Fout bij admin setup: 
+Invalid `prisma.user.create()` invocation in
+/Users/rijkbouwer/PrintCap-Project/printcap/controllers/admin.controller.js:40:27
+
+  37 }
+  38 
+  39 const passwordHash = await bcrypt.hash(password, 10);
+→ 40 await prisma.user.create({
+       data: {
+         email: "admin@capahub.com",
+         passwordHash: "$2b$10$Y3ZfFq92ILTX4uVo0EWyTORyaELJIIJOhg5sSpP5uQ5o5KmMQPFsm",
+         role: "admin",
+         status: "active",
+         emailVerified: true,
+     +   bedrijfsnaam: String
+       }
+     })
+
+Argument `bedrijfsnaam` is missing.
+2025-07-24 09:19:47 error: Fout bij admin setup: 
+Invalid `prisma.user.create()` invocation in
+/Users/rijkbouwer/PrintCap-Project/printcap/controllers/admin.controller.js:40:27
+
+  37 }
+  38 
+  39 const passwordHash = await bcrypt.hash(password, 10);
+→ 40 await prisma.user.create({
+       data: {
+         email: "admin@capahub.com",
+         passwordHash: "$2b$10$BzC4x6zScYNvfTbNuFGpve5/zTY/VobQR.vEzf44N9ZqkdL63qHy2",
+         role: "admin",
+         status: "active",
+         emailVerified: true,
+     +   bedrijfsnaam: String
+       }
+     })
+
+Argument `bedrijfsnaam` is missing.
+2025-07-24 13:25:34 error: Fout bij indienen offerte voor opdracht cmdh9rq2m0001dip6ojnjir4i: 
+Invalid `prisma.quote.findFirst()` invocation in
+/Users/rijkbouwer/PrintCap-Project/printcap/controllers/quote.controller.js:10:42
+
+   7 // Functie om een uniek offertenummer te genereren
+   8 const generateQuoteNumber = async () => {
+   9     const prefix = `OF-${new Date().getFullYear().toString().slice(-2)}-`;
+→ 10     const lastQuote = await prisma.quote.findFirst({
+           where: {
+             quoteNumber: {
+             ~~~~~~~~~~~
+               startsWith: "OF-25-"
+             },
+         ?   AND?: QuoteWhereInput | QuoteWhereInput[],
+         ?   OR?: QuoteWhereInput[],
+         ?   NOT?: QuoteWhereInput | QuoteWhereInput[],
+         ?   id?: StringFilter | String,
+         ?   price?: FloatFilter | Float,
+         ?   deliveryTime?: StringFilter | String,
+         ?   comments?: StringNullableFilter | String | Null,
+         ?   status?: StringFilter | String,
+         ?   createdAt?: DateTimeFilter | DateTime,
+         ?   statusUpdatedAt?: DateTimeFilter | DateTime,
+         ?   jobId?: StringFilter | String,
+         ?   providerId?: StringFilter | String,
+         ?   job?: PrintJobScalarRelationFilter | PrintJobWhereInput,
+         ?   provider?: UserScalarRelationFilter | UserWhereInput
+           },
+           orderBy: {
+             quoteNumber: "desc"
+           }
+         })
+
+Unknown argument `quoteNumber`. Available options are marked with ?.
+2025-07-24 13:26:19 error: Fout bij indienen offerte voor opdracht cmdh9rq2m0001dip6ojnjir4i: 
+Invalid `prisma.quote.findFirst()` invocation in
+/Users/rijkbouwer/PrintCap-Project/printcap/controllers/quote.controller.js:10:42
+
+   7 // Functie om een uniek offertenummer te genereren
+   8 const generateQuoteNumber = async () => {
+   9     const prefix = `OF-${new Date().getFullYear().toString().slice(-2)}-`;
+→ 10     const lastQuote = await prisma.quote.findFirst({
+           where: {
+             quoteNumber: {
+             ~~~~~~~~~~~
+               startsWith: "OF-25-"
+             },
+         ?   AND?: QuoteWhereInput | QuoteWhereInput[],
+         ?   OR?: QuoteWhereInput[],
+         ?   NOT?: QuoteWhereInput | QuoteWhereInput[],
+         ?   id?: StringFilter | String,
+         ?   price?: FloatFilter | Float,
+         ?   deliveryTime?: StringFilter | String,
+         ?   comments?: StringNullableFilter | String | Null,
+         ?   status?: StringFilter | String,
+         ?   createdAt?: DateTimeFilter | DateTime,
+         ?   statusUpdatedAt?: DateTimeFilter | DateTime,
+         ?   jobId?: StringFilter | String,
+         ?   providerId?: StringFilter | String,
+         ?   job?: PrintJobScalarRelationFilter | PrintJobWhereInput,
+         ?   provider?: UserScalarRelationFilter | UserWhereInput
+           },
+           orderBy: {
+             quoteNumber: "desc"
+           }
+         })
+
+Unknown argument `quoteNumber`. Available options are marked with ?.
+2025-07-24 13:28:19 error: Fout bij indienen offerte voor opdracht cmdh9rq2m0001dip6ojnjir4i: 
+Invalid `prisma.quote.findFirst()` invocation in
+/Users/rijkbouwer/PrintCap-Project/printcap/controllers/quote.controller.js:10:42
+
+   7 // Functie om een uniek offertenummer te genereren
+   8 const generateQuoteNumber = async () => {
+   9     const prefix = `OF-${new Date().getFullYear().toString().slice(-2)}-`;
+→ 10     const lastQuote = await prisma.quote.findFirst({
+           where: {
+             quoteNumber: {
+             ~~~~~~~~~~~
+               startsWith: "OF-25-"
+             },
+         ?   AND?: QuoteWhereInput | QuoteWhereInput[],
+         ?   OR?: QuoteWhereInput[],
+         ?   NOT?: QuoteWhereInput | QuoteWhereInput[],
+         ?   id?: StringFilter | String,
+         ?   price?: FloatFilter | Float,
+         ?   deliveryTime?: StringFilter | String,
+         ?   comments?: StringNullableFilter | String | Null,
+         ?   status?: StringFilter | String,
+         ?   createdAt?: DateTimeFilter | DateTime,
+         ?   statusUpdatedAt?: DateTimeFilter | DateTime,
+         ?   jobId?: StringFilter | String,
+         ?   providerId?: StringFilter | String,
+         ?   job?: PrintJobScalarRelationFilter | PrintJobWhereInput,
+         ?   provider?: UserScalarRelationFilter | UserWhereInput
+           },
+           orderBy: {
+             quoteNumber: "desc"
+           }
+         })
+
+Unknown argument `quoteNumber`. Available options are marked with ?.
+2025-07-24 13:32:15 error: Fout bij indienen offerte voor opdracht cmdh9rq2m0001dip6ojnjir4i: 
+Invalid `prisma.quote.findFirst()` invocation in
+/Users/rijkbouwer/PrintCap-Project/printcap/controllers/quote.controller.js:10:42
+
+   7 // Functie om een uniek offertenummer te genereren
+   8 const generateQuoteNumber = async () => {
+   9     const prefix = `OF-${new Date().getFullYear().toString().slice(-2)}-`;
+→ 10     const lastQuote = await prisma.quote.findFirst({
+           where: {
+             quoteNumber: {
+             ~~~~~~~~~~~
+               startsWith: "OF-25-"
+             },
+         ?   AND?: QuoteWhereInput | QuoteWhereInput[],
+         ?   OR?: QuoteWhereInput[],
+         ?   NOT?: QuoteWhereInput | QuoteWhereInput[],
+         ?   id?: StringFilter | String,
+         ?   price?: FloatFilter | Float,
+         ?   deliveryTime?: StringFilter | String,
+         ?   comments?: StringNullableFilter | String | Null,
+         ?   status?: StringFilter | String,
+         ?   createdAt?: DateTimeFilter | DateTime,
+         ?   statusUpdatedAt?: DateTimeFilter | DateTime,
+         ?   jobId?: StringFilter | String,
+         ?   providerId?: StringFilter | String,
+         ?   job?: PrintJobScalarRelationFilter | PrintJobWhereInput,
+         ?   provider?: UserScalarRelationFilter | UserWhereInput
+           },
+           orderBy: {
+             quoteNumber: "desc"
+           }
+         })
+
+Unknown argument `quoteNumber`. Available options are marked with ?.
+2025-07-24 13:34:08 error: Fout bij ophalen job ID cmdh9rq2m0001dip6ojnjir4i: 
+Invalid `prisma.printJob.findUnique()` invocation in
+/Users/rijkbouwer/PrintCap-Project/printcap/controllers/job.controller.js:60:43
+
+  57 const { id } = req.params;
+  58 const userId = req.user?.userId;
+  59 try {
+→ 60     const job = await prisma.printJob.findUnique(
+The column `main.PrintJob.jobNumber` does not exist in the current database.
+2025-07-24 13:34:08 error: Fout bij ophalen job ID cmdh9rq2m0001dip6ojnjir4i: 
+Invalid `prisma.printJob.findUnique()` invocation in
+/Users/rijkbouwer/PrintCap-Project/printcap/controllers/job.controller.js:60:43
+
+  57 const { id } = req.params;
+  58 const userId = req.user?.userId;
+  59 try {
+→ 60     const job = await prisma.printJob.findUnique(
+The column `main.PrintJob.jobNumber` does not exist in the current database.
+2025-07-24 13:34:20 error: Fout bij indienen offerte voor opdracht cmdh9rq2m0001dip6ojnjir4i: 
+Invalid `prisma.quote.findFirst()` invocation in
+/Users/rijkbouwer/PrintCap-Project/printcap/controllers/quote.controller.js:10:42
+
+   7 // Functie om een uniek offertenummer te genereren
+   8 const generateQuoteNumber = async () => {
+   9     const prefix = `OF-${new Date().getFullYear().toString().slice(-2)}-`;
+→ 10     const lastQuote = await prisma.quote.findFirst(
+The column `main.Quote.quoteNumber` does not exist in the current database.
+2025-07-24 14:11:23 error: Fout bij aanmaken aanbod door gebruiker cmdhbvezm0002di3xt88g5hvw: 
+Invalid `prisma.offer.create()` invocation in
+/Users/rijkbouwer/PrintCap-Project/printcap/controllers/offer.controller.js:29:45
+
+  26 if (!machineType || !material || !capacityDetails || !price) {
+  27     return res.status(400).json({ error: 'Alle velden zijn verplicht.' });
+  28 }
+→ 29 const newOffer = await prisma.offer.create({
+       data: {
+         machineType: "zund",
+         material: "honingraat 10 mm",
+         capacityDetails: "snijden hebben wij nog tijd voor",
+         price: "40",
+         ownerId: "cmdhbvezm0002di3xt88g5hvw",
+     +   offerNumber: String
+       }
+     })
+
+Argument `offerNumber` is missing.
+2025-07-24 14:20:18 error: Fout bij aanmaken aanbod door gebruiker cmdhbvezm0002di3xt88g5hvw: 
+Invalid `prisma.offer.create()` invocation in
+/Users/rijkbouwer/PrintCap-Project/printcap/controllers/offer.controller.js:29:45
+
+  26 if (!machineType || !material || !capacityDetails || !price) {
+  27     return res.status(400).json({ error: 'Alle velden zijn verplicht.' });
+  28 }
+→ 29 const newOffer = await prisma.offer.create({
+       data: {
+         machineType: "zund",
+         material: "honingraat 10 mm",
+         capacityDetails: "van alles wat",
+         price: "40",
+         ownerId: "cmdhbvezm0002di3xt88g5hvw",
+     +   offerNumber: String
+       }
+     })
+
+Argument `offerNumber` is missing.
+2025-07-24 14:56:35 error: Fout bij aanmaken aanbod door gebruiker cmdhbvezm0002di3xt88g5hvw: 
+Invalid `prisma.offer.create()` invocation in
+/Users/rijkbouwer/PrintCap-Project/printcap/controllers/offer.controller.js:29:45
+
+  26 if (!machineType || !material || !capacityDetails || !price) {
+  27     return res.status(400).json({ error: 'Alle velden zijn verplicht.' });
+  28 }
+→ 29 const newOffer = await prisma.offer.create({
+       data: {
+         machineType: "Tauro 2500",
+         material: "honingraat 10 mm",
+         capacityDetails: "heel goed hoor",
+         price: "40",
+         ownerId: "cmdhbvezm0002di3xt88g5hvw",
+     +   offerNumber: String
+       }
+     })
+
+Argument `offerNumber` is missing.
+2025-07-24 21:13:40 error: Fout bij registratie: 
+Invalid `tx.user.create()` invocation in
+/Users/rijkbouwer/PrintCap-Project/printcap/controllers/auth.controller.js:24:40
+
+  21 
+  22 // 2. Maak de eerste gebruiker (de eigenaar) aan
+  23 const passwordHash = await bcrypt.hash(password, 10);
+→ 24 const user = await tx.user.create({
+       data: {
+         email: "marleen@mamaatje.nl",
+         passwordHash: "$2b$10$4HtzVm.2iQzh//l2dExdmuxc3wLryNbNfrCAqezuGb7nsPotHnmoq",
+         companyId: "cmdhrt9fh0000diyn3q248i63",
+         companyRole: "owner",
+         status: "active",
+     +   name: String
+       }
+     })
+
+Argument `name` is missing.
+2025-07-24 21:14:33 error: Fout bij admin setup: 
+Invalid `prisma.user.create()` invocation in
+/Users/rijkbouwer/PrintCap-Project/printcap/controllers/admin.controller.js:40:27
+
+  37 }
+  38 
+  39 const passwordHash = await bcrypt.hash(password, 10);
+→ 40 await prisma.user.create({
+       data: {
+         email: "admin@capahub.com",
+         passwordHash: "$2b$10$NV6HNS9S40ptlvxcYw3hYukFmVIupfOIsF7XQT0z2graq4/1/vKaK",
+         role: "admin",
+         status: "active",
+         emailVerified: true,
+     +   name: String
+       }
+     })
+
+Argument `name` is missing.
+2025-07-24 21:20:01 error: Fout bij admin setup: 
+Invalid `prisma.user.create()` invocation in
+/Users/rijkbouwer/PrintCap-Project/printcap/controllers/admin.controller.js:39:27
+
+  36 }
+  37 
+  38 const passwordHash = await bcrypt.hash(password, 10);
+→ 39 await prisma.user.create({
+       data: {
+         email: "admin@capahub.com",
+         passwordHash: "$2b$10$GQxIVdyAXiJbkzCrteQy1uqSjeIkL3zlPxuEa2.6wzleKUJpC5tO2",
+         name: "Administrator",
+         role: "admin",
+         status: "active",
+         emailVerified: true,
+     +   company: {
+     +     create: CompanyCreateWithoutUsersInput | CompanyUncheckedCreateWithoutUsersInput,
+     +     connectOrCreate: CompanyCreateOrConnectWithoutUsersInput,
+     +     connect: CompanyWhereUniqueInput
+     +   }
+       }
+     })
+
+Argument `company` is missing.
+2025-07-24 21:21:45 error: Fout bij admin setup: 
+Invalid `prisma.user.create()` invocation in
+/Users/rijkbouwer/PrintCap-Project/printcap/controllers/admin.controller.js:39:27
+
+  36 }
+  37 
+  38 const passwordHash = await bcrypt.hash(password, 10);
+→ 39 await prisma.user.create({
+       data: {
+         email: "admin@capahub.com",
+         passwordHash: "$2b$10$Yt5I1ZnthcD//dTmSMr7HucCTBRs7.HrSSr8QwMvrmwJ/CSE3pZ4e",
+         name: "Administrator",
+         role: "admin",
+         status: "active",
+         emailVerified: true,
+     +   company: {
+     +     create: CompanyCreateWithoutUsersInput | CompanyUncheckedCreateWithoutUsersInput,
+     +     connectOrCreate: CompanyCreateOrConnectWithoutUsersInput,
+     +     connect: CompanyWhereUniqueInput
+     +   }
+       }
+     })
+
+Argument `company` is missing.
+2025-07-24 21:29:00 error: Fout bij registratie: 
+Invalid `tx.user.create()` invocation in
+/Users/rijkbouwer/PrintCap-Project/printcap/controllers/auth.controller.js:22:40
+
+  19 });
+  20 
+  21 const passwordHash = await bcrypt.hash(password, 10);
+→ 22 const user = await tx.user.create({
+       data: {
+         email: "marleen@mamaatje.nl",
+         passwordHash: "$2b$10$Th2NpT6J7P/k0uZzDHnhyOjJWp.j1tPGcdlIiFW6f8kMsviNKB8/6",
+         companyId: "cmdhscza50000di5hvy7hl1fh",
+         companyRole: "owner",
+         status: "active",
+     +   name: String
+       }
+     })
+
+Argument `name` is missing.
+2025-07-24 21:35:05 error: Fout bij ophalen 'getPublicJobs': 
+Invalid `prisma.printJob.findMany()` invocation in
+/Users/rijkbouwer/PrintCap-Project/printcap/controllers/marketplace.controller.js:13:50
+
+  10 
+  11 try {
+  12     // Een 'marktplaats' opdracht is 'public' en nog open voor offertes ('quoting').
+→ 13     const publicJobs = await prisma.printJob.findMany({
+           where: {
+             isPublic: true,
+             status: "quoting",
+             customerId: {
+             ~~~~~~~~~~
+               not: "cmdhsk4yt0005di5hytvz5daj"
+             },
+         ?   AND?: PrintJobWhereInput | PrintJobWhereInput[],
+         ?   OR?: PrintJobWhereInput[],
+         ?   NOT?: PrintJobWhereInput | PrintJobWhereInput[],
+         ?   id?: StringFilter | String,
+         ?   jobNumber?: StringFilter | String,
+         ?   title?: StringFilter | String,
+         ?   description?: StringFilter | String,
+         ?   quantity?: IntFilter | Int,
+         ?   material?: StringFilter | String,
+         ?   format?: StringNullableFilter | String | Null,
+         ?   deadline?: DateTimeNullableFilter | DateTime | Null,
+         ?   quotingDeadline?: DateTimeNullableFilter | DateTime | Null,
+         ?   reviewSubmitted?: BoolFilter | Boolean,
+         ?   createdAt?: DateTimeFilter | DateTime,
+         ?   updatedAt?: DateTimeFilter | DateTime,
+         ?   companyId?: StringFilter | String,
+         ?   creatorId?: StringFilter | String,
+         ?   winnerProviderId?: StringNullableFilter | String | Null,
+         ?   company?: CompanyScalarRelationFilter | CompanyWhereInput,
+         ?   creator?: UserScalarRelationFilter | UserWhereInput,
+         ?   quotes?: QuoteListRelationFilter,
+         ?   reviews?: ReviewListRelationFilter,
+         ?   productionSteps?: ProductionStepListRelationFilter
+           },
+           orderBy: {
+             createdAt: "desc"
+           }
+         })
+
+Unknown argument `customerId`. Available options are marked with ?.
+2025-07-24 21:35:05 error: Fout bij ophalen 'getPublicJobs': 
+Invalid `prisma.printJob.findMany()` invocation in
+/Users/rijkbouwer/PrintCap-Project/printcap/controllers/marketplace.controller.js:13:50
+
+  10 
+  11 try {
+  12     // Een 'marktplaats' opdracht is 'public' en nog open voor offertes ('quoting').
+→ 13     const publicJobs = await prisma.printJob.findMany({
+           where: {
+             isPublic: true,
+             status: "quoting",
+             customerId: {
+             ~~~~~~~~~~
+               not: "cmdhsk4yt0005di5hytvz5daj"
+             },
+         ?   AND?: PrintJobWhereInput | PrintJobWhereInput[],
+         ?   OR?: PrintJobWhereInput[],
+         ?   NOT?: PrintJobWhereInput | PrintJobWhereInput[],
+         ?   id?: StringFilter | String,
+         ?   jobNumber?: StringFilter | String,
+         ?   title?: StringFilter | String,
+         ?   description?: StringFilter | String,
+         ?   quantity?: IntFilter | Int,
+         ?   material?: StringFilter | String,
+         ?   format?: StringNullableFilter | String | Null,
+         ?   deadline?: DateTimeNullableFilter | DateTime | Null,
+         ?   quotingDeadline?: DateTimeNullableFilter | DateTime | Null,
+         ?   reviewSubmitted?: BoolFilter | Boolean,
+         ?   createdAt?: DateTimeFilter | DateTime,
+         ?   updatedAt?: DateTimeFilter | DateTime,
+         ?   companyId?: StringFilter | String,
+         ?   creatorId?: StringFilter | String,
+         ?   winnerProviderId?: StringNullableFilter | String | Null,
+         ?   company?: CompanyScalarRelationFilter | CompanyWhereInput,
+         ?   creator?: UserScalarRelationFilter | UserWhereInput,
+         ?   quotes?: QuoteListRelationFilter,
+         ?   reviews?: ReviewListRelationFilter,
+         ?   productionSteps?: ProductionStepListRelationFilter
+           },
+           orderBy: {
+             createdAt: "desc"
+           }
+         })
+
+Unknown argument `customerId`. Available options are marked with ?.
+2025-07-24 21:35:14 error: Fout bij ophalen profiel voor gebruiker cmdhsk4yt0005di5hytvz5daj: 
+Invalid `prisma.user.findUnique()` invocation in
+/Users/rijkbouwer/PrintCap-Project/printcap/controllers/profile.controller.js:11:47
+
+   8 const userId = req.user?.userId;
+   9 logger.debug(`Functie 'getProfile' gestart voor gebruiker ${userId}`);
+  10 try {
+→ 11     const userProfile = await prisma.user.findUnique({
+           where: {
+             id: "cmdhsk4yt0005di5hytvz5daj"
+           },
+           select: {
+             bedrijfsnaam: true,
+             ~~~~~~~~~~~~
+             email: true,
+             kvk: true,
+             plaats: true,
+             adres: true,
+             postcode: true,
+             telefoon: true,
+             iban: true,
+         ?   id?: true,
+         ?   passwordHash?: true,
+         ?   name?: true,
+         ?   status?: true,
+         ?   role?: true,
+         ?   companyRole?: true,
+         ?   emailVerified?: true,
+         ?   emailVerificationToken?: true,
+         ?   createdAt?: true,
+         ?   updatedAt?: true,
+         ?   companyId?: true,
+         ?   company?: true,
+         ?   submittedQuotes?: true,
+         ?   submittedOffers?: true,
+         ?   createdJobs?: true,
+         ?   notifications?: true,
+         ?   _count?: true
+           }
+         })
+
+Unknown field `bedrijfsnaam` for select statement on model `User`. Available options are marked with ?.
+2025-07-24 21:35:14 error: Fout bij ophalen profiel voor gebruiker cmdhsk4yt0005di5hytvz5daj: 
+Invalid `prisma.user.findUnique()` invocation in
+/Users/rijkbouwer/PrintCap-Project/printcap/controllers/profile.controller.js:11:47
+
+   8 const userId = req.user?.userId;
+   9 logger.debug(`Functie 'getProfile' gestart voor gebruiker ${userId}`);
+  10 try {
+→ 11     const userProfile = await prisma.user.findUnique({
+           where: {
+             id: "cmdhsk4yt0005di5hytvz5daj"
+           },
+           select: {
+             bedrijfsnaam: true,
+             ~~~~~~~~~~~~
+             email: true,
+             kvk: true,
+             plaats: true,
+             adres: true,
+             postcode: true,
+             telefoon: true,
+             iban: true,
+         ?   id?: true,
+         ?   passwordHash?: true,
+         ?   name?: true,
+         ?   status?: true,
+         ?   role?: true,
+         ?   companyRole?: true,
+         ?   emailVerified?: true,
+         ?   emailVerificationToken?: true,
+         ?   createdAt?: true,
+         ?   updatedAt?: true,
+         ?   companyId?: true,
+         ?   company?: true,
+         ?   submittedQuotes?: true,
+         ?   submittedOffers?: true,
+         ?   createdJobs?: true,
+         ?   notifications?: true,
+         ?   _count?: true
+           }
+         })
+
+Unknown field `bedrijfsnaam` for select statement on model `User`. Available options are marked with ?.
+2025-07-24 21:39:59 error: Fout bij ophalen 'getMyJobs' voor gebruiker cmdhsk4yt0005di5hytvz5daj: 
+Invalid `prisma.printJob.findMany()` invocation in
+/Users/rijkbouwer/PrintCap-Project/printcap/controllers/job.controller.js:29:44
+
+  26 exports.getMyJobs = async (req, res) => {
+  27     const userId = req.user?.userId;
+  28     try {
+→ 29         const jobs = await prisma.printJob.findMany({
+               where: {
+                 customerId: "cmdhsk4yt0005di5hytvz5daj",
+                 ~~~~~~~~~~
+             ?   AND?: PrintJobWhereInput | PrintJobWhereInput[],
+             ?   OR?: PrintJobWhereInput[],
+             ?   NOT?: PrintJobWhereInput | PrintJobWhereInput[],
+             ?   id?: StringFilter | String,
+             ?   jobNumber?: StringFilter | String,
+             ?   title?: StringFilter | String,
+             ?   description?: StringFilter | String,
+             ?   quantity?: IntFilter | Int,
+             ?   material?: StringFilter | String,
+             ?   format?: StringNullableFilter | String | Null,
+             ?   deadline?: DateTimeNullableFilter | DateTime | Null,
+             ?   quotingDeadline?: DateTimeNullableFilter | DateTime | Null,
+             ?   status?: StringFilter | String,
+             ?   isPublic?: BoolFilter | Boolean,
+             ?   reviewSubmitted?: BoolFilter | Boolean,
+             ?   createdAt?: DateTimeFilter | DateTime,
+             ?   updatedAt?: DateTimeFilter | DateTime,
+             ?   companyId?: StringFilter | String,
+             ?   creatorId?: StringFilter | String,
+             ?   winnerProviderId?: StringNullableFilter | String | Null,
+             ?   company?: CompanyScalarRelationFilter | CompanyWhereInput,
+             ?   creator?: UserScalarRelationFilter | UserWhereInput,
+             ?   quotes?: QuoteListRelationFilter,
+             ?   reviews?: ReviewListRelationFilter,
+             ?   productionSteps?: ProductionStepListRelationFilter
+               },
+               orderBy: {
+                 createdAt: "desc"
+               }
+             })
+
+Unknown argument `customerId`. Available options are marked with ?.
+2025-07-24 21:39:59 error: Fout bij ophalen 'getMyJobs' voor gebruiker cmdhsk4yt0005di5hytvz5daj: 
+Invalid `prisma.printJob.findMany()` invocation in
+/Users/rijkbouwer/PrintCap-Project/printcap/controllers/job.controller.js:29:44
+
+  26 exports.getMyJobs = async (req, res) => {
+  27     const userId = req.user?.userId;
+  28     try {
+→ 29         const jobs = await prisma.printJob.findMany({
+               where: {
+                 customerId: "cmdhsk4yt0005di5hytvz5daj",
+                 ~~~~~~~~~~
+             ?   AND?: PrintJobWhereInput | PrintJobWhereInput[],
+             ?   OR?: PrintJobWhereInput[],
+             ?   NOT?: PrintJobWhereInput | PrintJobWhereInput[],
+             ?   id?: StringFilter | String,
+             ?   jobNumber?: StringFilter | String,
+             ?   title?: StringFilter | String,
+             ?   description?: StringFilter | String,
+             ?   quantity?: IntFilter | Int,
+             ?   material?: StringFilter | String,
+             ?   format?: StringNullableFilter | String | Null,
+             ?   deadline?: DateTimeNullableFilter | DateTime | Null,
+             ?   quotingDeadline?: DateTimeNullableFilter | DateTime | Null,
+             ?   status?: StringFilter | String,
+             ?   isPublic?: BoolFilter | Boolean,
+             ?   reviewSubmitted?: BoolFilter | Boolean,
+             ?   createdAt?: DateTimeFilter | DateTime,
+             ?   updatedAt?: DateTimeFilter | DateTime,
+             ?   companyId?: StringFilter | String,
+             ?   creatorId?: StringFilter | String,
+             ?   winnerProviderId?: StringNullableFilter | String | Null,
+             ?   company?: CompanyScalarRelationFilter | CompanyWhereInput,
+             ?   creator?: UserScalarRelationFilter | UserWhereInput,
+             ?   quotes?: QuoteListRelationFilter,
+             ?   reviews?: ReviewListRelationFilter,
+             ?   productionSteps?: ProductionStepListRelationFilter
+               },
+               orderBy: {
+                 createdAt: "desc"
+               }
+             })
+
+Unknown argument `customerId`. Available options are marked with ?.
+2025-07-24 21:42:40 error: Fout bij ophalen 'getMyOffers' voor gebruiker cmdhsk4yt0005di5hytvz5daj: 
+Invalid `prisma.offer.findMany()` invocation in
+/Users/rijkbouwer/PrintCap-Project/printcap/controllers/offer.controller.js:25:43
+
+  22 exports.getMyOffers = async (req, res) => {
+  23     const userId = req.user?.userId;
+  24     try {
+→ 25         const offers = await prisma.offer.findMany({
+               where: {
+                 ownerId: "cmdhsk4yt0005di5hytvz5daj",
+                 ~~~~~~~
+             ?   AND?: OfferWhereInput | OfferWhereInput[],
+             ?   OR?: OfferWhereInput[],
+             ?   NOT?: OfferWhereInput | OfferWhereInput[],
+             ?   id?: StringFilter | String,
+             ?   offerNumber?: StringFilter | String,
+             ?   machineType?: StringFilter | String,
+             ?   material?: StringFilter | String,
+             ?   location?: StringNullableFilter | String | Null,
+             ?   availableFrom?: DateTimeNullableFilter | DateTime | Null,
+             ?   availableTo?: DateTimeNullableFilter | DateTime | Null,
+             ?   capacityDetails?: StringFilter | String,
+             ?   price?: StringFilter | String,
+             ?   createdAt?: DateTimeFilter | DateTime,
+             ?   companyId?: StringFilter | String,
+             ?   creatorId?: StringFilter | String,
+             ?   company?: CompanyScalarRelationFilter | CompanyWhereInput,
+             ?   creator?: UserScalarRelationFilter | UserWhereInput
+               },
+               orderBy: {
+                 createdAt: "desc"
+               }
+             })
+
+Unknown argument `ownerId`. Available options are marked with ?.
+2025-07-24 21:42:40 error: Fout bij ophalen 'getMyOffers' voor gebruiker cmdhsk4yt0005di5hytvz5daj: 
+Invalid `prisma.offer.findMany()` invocation in
+/Users/rijkbouwer/PrintCap-Project/printcap/controllers/offer.controller.js:25:43
+
+  22 exports.getMyOffers = async (req, res) => {
+  23     const userId = req.user?.userId;
+  24     try {
+→ 25         const offers = await prisma.offer.findMany({
+               where: {
+                 ownerId: "cmdhsk4yt0005di5hytvz5daj",
+                 ~~~~~~~
+             ?   AND?: OfferWhereInput | OfferWhereInput[],
+             ?   OR?: OfferWhereInput[],
+             ?   NOT?: OfferWhereInput | OfferWhereInput[],
+             ?   id?: StringFilter | String,
+             ?   offerNumber?: StringFilter | String,
+             ?   machineType?: StringFilter | String,
+             ?   material?: StringFilter | String,
+             ?   location?: StringNullableFilter | String | Null,
+             ?   availableFrom?: DateTimeNullableFilter | DateTime | Null,
+             ?   availableTo?: DateTimeNullableFilter | DateTime | Null,
+             ?   capacityDetails?: StringFilter | String,
+             ?   price?: StringFilter | String,
+             ?   createdAt?: DateTimeFilter | DateTime,
+             ?   companyId?: StringFilter | String,
+             ?   creatorId?: StringFilter | String,
+             ?   company?: CompanyScalarRelationFilter | CompanyWhereInput,
+             ?   creator?: UserScalarRelationFilter | UserWhereInput
+               },
+               orderBy: {
+                 createdAt: "desc"
+               }
+             })
+
+Unknown argument `ownerId`. Available options are marked with ?.
+2025-07-24 21:42:59 error: Fout bij ophalen 'getMyJobs' voor gebruiker cmdhsk4yt0005di5hytvz5daj: 
+Invalid `prisma.printJob.findMany()` invocation in
+/Users/rijkbouwer/PrintCap-Project/printcap/controllers/job.controller.js:29:44
+
+  26 exports.getMyJobs = async (req, res) => {
+  27     const userId = req.user?.userId;
+  28     try {
+→ 29         const jobs = await prisma.printJob.findMany({
+               where: {
+                 customerId: "cmdhsk4yt0005di5hytvz5daj",
+                 ~~~~~~~~~~
+             ?   AND?: PrintJobWhereInput | PrintJobWhereInput[],
+             ?   OR?: PrintJobWhereInput[],
+             ?   NOT?: PrintJobWhereInput | PrintJobWhereInput[],
+             ?   id?: StringFilter | String,
+             ?   jobNumber?: StringFilter | String,
+             ?   title?: StringFilter | String,
+             ?   description?: StringFilter | String,
+             ?   quantity?: IntFilter | Int,
+             ?   material?: StringFilter | String,
+             ?   format?: StringNullableFilter | String | Null,
+             ?   deadline?: DateTimeNullableFilter | DateTime | Null,
+             ?   quotingDeadline?: DateTimeNullableFilter | DateTime | Null,
+             ?   status?: StringFilter | String,
+             ?   isPublic?: BoolFilter | Boolean,
+             ?   reviewSubmitted?: BoolFilter | Boolean,
+             ?   createdAt?: DateTimeFilter | DateTime,
+             ?   updatedAt?: DateTimeFilter | DateTime,
+             ?   companyId?: StringFilter | String,
+             ?   creatorId?: StringFilter | String,
+             ?   winnerProviderId?: StringNullableFilter | String | Null,
+             ?   company?: CompanyScalarRelationFilter | CompanyWhereInput,
+             ?   creator?: UserScalarRelationFilter | UserWhereInput,
+             ?   quotes?: QuoteListRelationFilter,
+             ?   reviews?: ReviewListRelationFilter,
+             ?   productionSteps?: ProductionStepListRelationFilter
+               },
+               orderBy: {
+                 createdAt: "desc"
+               }
+             })
+
+Unknown argument `customerId`. Available options are marked with ?.
+2025-07-24 21:42:59 error: Fout bij ophalen 'getMyJobs' voor gebruiker cmdhsk4yt0005di5hytvz5daj: 
+Invalid `prisma.printJob.findMany()` invocation in
+/Users/rijkbouwer/PrintCap-Project/printcap/controllers/job.controller.js:29:44
+
+  26 exports.getMyJobs = async (req, res) => {
+  27     const userId = req.user?.userId;
+  28     try {
+→ 29         const jobs = await prisma.printJob.findMany({
+               where: {
+                 customerId: "cmdhsk4yt0005di5hytvz5daj",
+                 ~~~~~~~~~~
+             ?   AND?: PrintJobWhereInput | PrintJobWhereInput[],
+             ?   OR?: PrintJobWhereInput[],
+             ?   NOT?: PrintJobWhereInput | PrintJobWhereInput[],
+             ?   id?: StringFilter | String,
+             ?   jobNumber?: StringFilter | String,
+             ?   title?: StringFilter | String,
+             ?   description?: StringFilter | String,
+             ?   quantity?: IntFilter | Int,
+             ?   material?: StringFilter | String,
+             ?   format?: StringNullableFilter | String | Null,
+             ?   deadline?: DateTimeNullableFilter | DateTime | Null,
+             ?   quotingDeadline?: DateTimeNullableFilter | DateTime | Null,
+             ?   status?: StringFilter | String,
+             ?   isPublic?: BoolFilter | Boolean,
+             ?   reviewSubmitted?: BoolFilter | Boolean,
+             ?   createdAt?: DateTimeFilter | DateTime,
+             ?   updatedAt?: DateTimeFilter | DateTime,
+             ?   companyId?: StringFilter | String,
+             ?   creatorId?: StringFilter | String,
+             ?   winnerProviderId?: StringNullableFilter | String | Null,
+             ?   company?: CompanyScalarRelationFilter | CompanyWhereInput,
+             ?   creator?: UserScalarRelationFilter | UserWhereInput,
+             ?   quotes?: QuoteListRelationFilter,
+             ?   reviews?: ReviewListRelationFilter,
+             ?   productionSteps?: ProductionStepListRelationFilter
+               },
+               orderBy: {
+                 createdAt: "desc"
+               }
+             })
+
+Unknown argument `customerId`. Available options are marked with ?.
+2025-07-24 21:45:49 error: Fout bij ophalen 'getMyOffers' voor gebruiker cmdhsk4yt0005di5hytvz5daj: 
+Invalid `prisma.offer.findMany()` invocation in
+/Users/rijkbouwer/PrintCap-Project/printcap/controllers/offer.controller.js:25:43
+
+  22 exports.getMyOffers = async (req, res) => {
+  23     const userId = req.user?.userId;
+  24     try {
+→ 25         const offers = await prisma.offer.findMany({
+               where: {
+                 ownerId: "cmdhsk4yt0005di5hytvz5daj",
+                 ~~~~~~~
+             ?   AND?: OfferWhereInput | OfferWhereInput[],
+             ?   OR?: OfferWhereInput[],
+             ?   NOT?: OfferWhereInput | OfferWhereInput[],
+             ?   id?: StringFilter | String,
+             ?   offerNumber?: StringFilter | String,
+             ?   machineType?: StringFilter | String,
+             ?   material?: StringFilter | String,
+             ?   location?: StringNullableFilter | String | Null,
+             ?   availableFrom?: DateTimeNullableFilter | DateTime | Null,
+             ?   availableTo?: DateTimeNullableFilter | DateTime | Null,
+             ?   capacityDetails?: StringFilter | String,
+             ?   price?: StringFilter | String,
+             ?   createdAt?: DateTimeFilter | DateTime,
+             ?   companyId?: StringFilter | String,
+             ?   creatorId?: StringFilter | String,
+             ?   company?: CompanyScalarRelationFilter | CompanyWhereInput,
+             ?   creator?: UserScalarRelationFilter | UserWhereInput
+               },
+               orderBy: {
+                 createdAt: "desc"
+               }
+             })
+
+Unknown argument `ownerId`. Available options are marked with ?.
+2025-07-24 21:45:49 error: Fout bij ophalen 'getMyOffers' voor gebruiker cmdhsk4yt0005di5hytvz5daj: 
+Invalid `prisma.offer.findMany()` invocation in
+/Users/rijkbouwer/PrintCap-Project/printcap/controllers/offer.controller.js:25:43
+
+  22 exports.getMyOffers = async (req, res) => {
+  23     const userId = req.user?.userId;
+  24     try {
+→ 25         const offers = await prisma.offer.findMany({
+               where: {
+                 ownerId: "cmdhsk4yt0005di5hytvz5daj",
+                 ~~~~~~~
+             ?   AND?: OfferWhereInput | OfferWhereInput[],
+             ?   OR?: OfferWhereInput[],
+             ?   NOT?: OfferWhereInput | OfferWhereInput[],
+             ?   id?: StringFilter | String,
+             ?   offerNumber?: StringFilter | String,
+             ?   machineType?: StringFilter | String,
+             ?   material?: StringFilter | String,
+             ?   location?: StringNullableFilter | String | Null,
+             ?   availableFrom?: DateTimeNullableFilter | DateTime | Null,
+             ?   availableTo?: DateTimeNullableFilter | DateTime | Null,
+             ?   capacityDetails?: StringFilter | String,
+             ?   price?: StringFilter | String,
+             ?   createdAt?: DateTimeFilter | DateTime,
+             ?   companyId?: StringFilter | String,
+             ?   creatorId?: StringFilter | String,
+             ?   company?: CompanyScalarRelationFilter | CompanyWhereInput,
+             ?   creator?: UserScalarRelationFilter | UserWhereInput
+               },
+               orderBy: {
+                 createdAt: "desc"
+               }
+             })
+
+Unknown argument `ownerId`. Available options are marked with ?.
+2025-07-24 21:46:13 error: Fout bij ophalen 'getMySubmittedQuotes' voor gebruiker cmdhsk4yt0005di5hytvz5daj: 
+Invalid `prisma.quote.findMany()` invocation in
+/Users/rijkbouwer/PrintCap-Project/printcap/controllers/quote.controller.js:24:43
+
+  21 exports.getMySubmittedQuotes = async (req, res) => {
+  22     const userId = req.user?.userId;
+  23     try {
+→ 24         const quotes = await prisma.quote.findMany({
+               where: {
+                 providerId: "cmdhsk4yt0005di5hytvz5daj",
+                 ~~~~~~~~~~
+             ?   AND?: QuoteWhereInput | QuoteWhereInput[],
+             ?   OR?: QuoteWhereInput[],
+             ?   NOT?: QuoteWhereInput | QuoteWhereInput[],
+             ?   id?: StringFilter | String,
+             ?   quoteNumber?: StringFilter | String,
+             ?   price?: FloatFilter | Float,
+             ?   deliveryTime?: StringFilter | String,
+             ?   comments?: StringNullableFilter | String | Null,
+             ?   status?: StringFilter | String,
+             ?   createdAt?: DateTimeFilter | DateTime,
+             ?   statusUpdatedAt?: DateTimeFilter | DateTime,
+             ?   jobId?: StringFilter | String,
+             ?   companyId?: StringFilter | String,
+             ?   submitterId?: StringFilter | String,
+             ?   job?: PrintJobScalarRelationFilter | PrintJobWhereInput,
+             ?   company?: CompanyScalarRelationFilter | CompanyWhereInput,
+             ?   submitter?: UserScalarRelationFilter | UserWhereInput
+               },
+               include: {
+                 job: {
+                   select: {
+                     title: true
+                   }
+                 }
+               },
+               orderBy: {
+                 createdAt: "desc"
+               }
+             })
+
+Unknown argument `providerId`. Available options are marked with ?.
+2025-07-24 21:46:13 error: Fout bij ophalen 'getMySubmittedQuotes' voor gebruiker cmdhsk4yt0005di5hytvz5daj: 
+Invalid `prisma.quote.findMany()` invocation in
+/Users/rijkbouwer/PrintCap-Project/printcap/controllers/quote.controller.js:24:43
+
+  21 exports.getMySubmittedQuotes = async (req, res) => {
+  22     const userId = req.user?.userId;
+  23     try {
+→ 24         const quotes = await prisma.quote.findMany({
+               where: {
+                 providerId: "cmdhsk4yt0005di5hytvz5daj",
+                 ~~~~~~~~~~
+             ?   AND?: QuoteWhereInput | QuoteWhereInput[],
+             ?   OR?: QuoteWhereInput[],
+             ?   NOT?: QuoteWhereInput | QuoteWhereInput[],
+             ?   id?: StringFilter | String,
+             ?   quoteNumber?: StringFilter | String,
+             ?   price?: FloatFilter | Float,
+             ?   deliveryTime?: StringFilter | String,
+             ?   comments?: StringNullableFilter | String | Null,
+             ?   status?: StringFilter | String,
+             ?   createdAt?: DateTimeFilter | DateTime,
+             ?   statusUpdatedAt?: DateTimeFilter | DateTime,
+             ?   jobId?: StringFilter | String,
+             ?   companyId?: StringFilter | String,
+             ?   submitterId?: StringFilter | String,
+             ?   job?: PrintJobScalarRelationFilter | PrintJobWhereInput,
+             ?   company?: CompanyScalarRelationFilter | CompanyWhereInput,
+             ?   submitter?: UserScalarRelationFilter | UserWhereInput
+               },
+               include: {
+                 job: {
+                   select: {
+                     title: true
+                   }
+                 }
+               },
+               orderBy: {
+                 createdAt: "desc"
+               }
+             })
+
+Unknown argument `providerId`. Available options are marked with ?.
+2025-07-24 21:48:21 error: Fout bij ophalen 'getMyOffers' voor gebruiker cmdhsk4yt0005di5hytvz5daj: 
+Invalid `prisma.offer.findMany()` invocation in
+/Users/rijkbouwer/PrintCap-Project/printcap/controllers/offer.controller.js:25:43
+
+  22 exports.getMyOffers = async (req, res) => {
+  23     const userId = req.user?.userId;
+  24     try {
+→ 25         const offers = await prisma.offer.findMany({
+               where: {
+                 ownerId: "cmdhsk4yt0005di5hytvz5daj",
+                 ~~~~~~~
+             ?   AND?: OfferWhereInput | OfferWhereInput[],
+             ?   OR?: OfferWhereInput[],
+             ?   NOT?: OfferWhereInput | OfferWhereInput[],
+             ?   id?: StringFilter | String,
+             ?   offerNumber?: StringFilter | String,
+             ?   machineType?: StringFilter | String,
+             ?   material?: StringFilter | String,
+             ?   location?: StringNullableFilter | String | Null,
+             ?   availableFrom?: DateTimeNullableFilter | DateTime | Null,
+             ?   availableTo?: DateTimeNullableFilter | DateTime | Null,
+             ?   capacityDetails?: StringFilter | String,
+             ?   price?: StringFilter | String,
+             ?   createdAt?: DateTimeFilter | DateTime,
+             ?   companyId?: StringFilter | String,
+             ?   creatorId?: StringFilter | String,
+             ?   company?: CompanyScalarRelationFilter | CompanyWhereInput,
+             ?   creator?: UserScalarRelationFilter | UserWhereInput
+               },
+               orderBy: {
+                 createdAt: "desc"
+               }
+             })
+
+Unknown argument `ownerId`. Available options are marked with ?.
+2025-07-24 21:48:21 error: Fout bij ophalen 'getMyOffers' voor gebruiker cmdhsk4yt0005di5hytvz5daj: 
+Invalid `prisma.offer.findMany()` invocation in
+/Users/rijkbouwer/PrintCap-Project/printcap/controllers/offer.controller.js:25:43
+
+  22 exports.getMyOffers = async (req, res) => {
+  23     const userId = req.user?.userId;
+  24     try {
+→ 25         const offers = await prisma.offer.findMany({
+               where: {
+                 ownerId: "cmdhsk4yt0005di5hytvz5daj",
+                 ~~~~~~~
+             ?   AND?: OfferWhereInput | OfferWhereInput[],
+             ?   OR?: OfferWhereInput[],
+             ?   NOT?: OfferWhereInput | OfferWhereInput[],
+             ?   id?: StringFilter | String,
+             ?   offerNumber?: StringFilter | String,
+             ?   machineType?: StringFilter | String,
+             ?   material?: StringFilter | String,
+             ?   location?: StringNullableFilter | String | Null,
+             ?   availableFrom?: DateTimeNullableFilter | DateTime | Null,
+             ?   availableTo?: DateTimeNullableFilter | DateTime | Null,
+             ?   capacityDetails?: StringFilter | String,
+             ?   price?: StringFilter | String,
+             ?   createdAt?: DateTimeFilter | DateTime,
+             ?   companyId?: StringFilter | String,
+             ?   creatorId?: StringFilter | String,
+             ?   company?: CompanyScalarRelationFilter | CompanyWhereInput,
+             ?   creator?: UserScalarRelationFilter | UserWhereInput
+               },
+               orderBy: {
+                 createdAt: "desc"
+               }
+             })
+
+Unknown argument `ownerId`. Available options are marked with ?.
+2025-07-24 21:48:45 error: Fout bij ophalen 'getMyProductions' voor gebruiker cmdhsk4yt0005di5hytvz5daj: 
+Invalid `prisma.printJob.findMany()` invocation in
+/Users/rijkbouwer/PrintCap-Project/printcap/controllers/production.controller.js:10:51
+
+   7 exports.getMyProductions = async (req, res) => {
+   8     const userId = req.user?.userId;
+   9     try {
+→ 10         const productions = await prisma.printJob.findMany({
+               where: {
+                 winnerProviderId: "cmdhsk4yt0005di5hytvz5daj"
+               },
+               include: {
+                 customer: {
+                 ~~~~~~~~
+                   select: {
+                     bedrijfsnaam: true
+                   }
+                 },
+                 productionSteps: true,
+             ?   company?: true,
+             ?   creator?: true,
+             ?   quotes?: true,
+             ?   reviews?: true
+               },
+               orderBy: {
+                 createdAt: "desc"
+               }
+             })
+
+Unknown field `customer` for include statement on model `PrintJob`. Available options are marked with ?.
+2025-07-24 21:48:45 error: Fout bij ophalen 'getMyProductions' voor gebruiker cmdhsk4yt0005di5hytvz5daj: 
+Invalid `prisma.printJob.findMany()` invocation in
+/Users/rijkbouwer/PrintCap-Project/printcap/controllers/production.controller.js:10:51
+
+   7 exports.getMyProductions = async (req, res) => {
+   8     const userId = req.user?.userId;
+   9     try {
+→ 10         const productions = await prisma.printJob.findMany({
+               where: {
+                 winnerProviderId: "cmdhsk4yt0005di5hytvz5daj"
+               },
+               include: {
+                 customer: {
+                 ~~~~~~~~
+                   select: {
+                     bedrijfsnaam: true
+                   }
+                 },
+                 productionSteps: true,
+             ?   company?: true,
+             ?   creator?: true,
+             ?   quotes?: true,
+             ?   reviews?: true
+               },
+               orderBy: {
+                 createdAt: "desc"
+               }
+             })
+
+Unknown field `customer` for include statement on model `PrintJob`. Available options are marked with ?.
+2025-07-24 21:51:41 error: Fout bij ophalen 'getArchivedJobs' voor gebruiker cmdhsk4yt0005di5hytvz5daj: 
+Invalid `prisma.printJob.findMany()` invocation in
+/Users/rijkbouwer/PrintCap-Project/printcap/controllers/archive.controller.js:13:52
+
+  10 try {
+  11     // Een 'gearchiveerde' opdracht is 'completed' of 'cancelled'.
+  12     // De gebruiker moet ofwel de klant of de winnaar zijn om het te zien.
+→ 13     const archivedJobs = await prisma.printJob.findMany({
+           where: {
+             status: {
+               in: [
+                 "completed",
+                 "cancelled"
+               ]
+             },
+             OR: [
+               {
+                 customerId: "cmdhsk4yt0005di5hytvz5daj"
+               },
+               {
+                 winnerProviderId: "cmdhsk4yt0005di5hytvz5daj"
+               }
+             ]
+           },
+           orderBy: {
+             updatedAt: "desc"
+           }
+         })
+
+Unknown argument `customerId`. Available options are marked with ?.
+2025-07-24 21:51:41 error: Fout bij ophalen 'getArchivedJobs' voor gebruiker cmdhsk4yt0005di5hytvz5daj: 
+Invalid `prisma.printJob.findMany()` invocation in
+/Users/rijkbouwer/PrintCap-Project/printcap/controllers/archive.controller.js:13:52
+
+  10 try {
+  11     // Een 'gearchiveerde' opdracht is 'completed' of 'cancelled'.
+  12     // De gebruiker moet ofwel de klant of de winnaar zijn om het te zien.
+→ 13     const archivedJobs = await prisma.printJob.findMany({
+           where: {
+             status: {
+               in: [
+                 "completed",
+                 "cancelled"
+               ]
+             },
+             OR: [
+               {
+                 customerId: "cmdhsk4yt0005di5hytvz5daj"
+               },
+               {
+                 winnerProviderId: "cmdhsk4yt0005di5hytvz5daj"
+               }
+             ]
+           },
+           orderBy: {
+             updatedAt: "desc"
+           }
+         })
+
+Unknown argument `customerId`. Available options are marked with ?.
+2025-07-24 21:54:22 error: Fout bij ophalen 'getMyOffers' voor gebruiker cmdhsk4yt0005di5hytvz5daj: 
+Invalid `prisma.offer.findMany()` invocation in
+/Users/rijkbouwer/PrintCap-Project/printcap/controllers/offer.controller.js:25:43
+
+  22 exports.getMyOffers = async (req, res) => {
+  23     const userId = req.user?.userId;
+  24     try {
+→ 25         const offers = await prisma.offer.findMany({
+               where: {
+                 ownerId: "cmdhsk4yt0005di5hytvz5daj",
+                 ~~~~~~~
+             ?   AND?: OfferWhereInput | OfferWhereInput[],
+             ?   OR?: OfferWhereInput[],
+             ?   NOT?: OfferWhereInput | OfferWhereInput[],
+             ?   id?: StringFilter | String,
+             ?   offerNumber?: StringFilter | String,
+             ?   machineType?: StringFilter | String,
+             ?   material?: StringFilter | String,
+             ?   location?: StringNullableFilter | String | Null,
+             ?   availableFrom?: DateTimeNullableFilter | DateTime | Null,
+             ?   availableTo?: DateTimeNullableFilter | DateTime | Null,
+             ?   capacityDetails?: StringFilter | String,
+             ?   price?: StringFilter | String,
+             ?   createdAt?: DateTimeFilter | DateTime,
+             ?   companyId?: StringFilter | String,
+             ?   creatorId?: StringFilter | String,
+             ?   company?: CompanyScalarRelationFilter | CompanyWhereInput,
+             ?   creator?: UserScalarRelationFilter | UserWhereInput
+               },
+               orderBy: {
+                 createdAt: "desc"
+               }
+             })
+
+Unknown argument `ownerId`. Available options are marked with ?.
+2025-07-24 21:54:22 error: Fout bij ophalen 'getMyOffers' voor gebruiker cmdhsk4yt0005di5hytvz5daj: 
+Invalid `prisma.offer.findMany()` invocation in
+/Users/rijkbouwer/PrintCap-Project/printcap/controllers/offer.controller.js:25:43
+
+  22 exports.getMyOffers = async (req, res) => {
+  23     const userId = req.user?.userId;
+  24     try {
+→ 25         const offers = await prisma.offer.findMany({
+               where: {
+                 ownerId: "cmdhsk4yt0005di5hytvz5daj",
+                 ~~~~~~~
+             ?   AND?: OfferWhereInput | OfferWhereInput[],
+             ?   OR?: OfferWhereInput[],
+             ?   NOT?: OfferWhereInput | OfferWhereInput[],
+             ?   id?: StringFilter | String,
+             ?   offerNumber?: StringFilter | String,
+             ?   machineType?: StringFilter | String,
+             ?   material?: StringFilter | String,
+             ?   location?: StringNullableFilter | String | Null,
+             ?   availableFrom?: DateTimeNullableFilter | DateTime | Null,
+             ?   availableTo?: DateTimeNullableFilter | DateTime | Null,
+             ?   capacityDetails?: StringFilter | String,
+             ?   price?: StringFilter | String,
+             ?   createdAt?: DateTimeFilter | DateTime,
+             ?   companyId?: StringFilter | String,
+             ?   creatorId?: StringFilter | String,
+             ?   company?: CompanyScalarRelationFilter | CompanyWhereInput,
+             ?   creator?: UserScalarRelationFilter | UserWhereInput
+               },
+               orderBy: {
+                 createdAt: "desc"
+               }
+             })
+
+Unknown argument `ownerId`. Available options are marked with ?.
+2025-07-24 21:54:45 error: Fout bij ophalen 'getMyOffers' voor gebruiker cmdhsk4yt0005di5hytvz5daj: 
+Invalid `prisma.offer.findMany()` invocation in
+/Users/rijkbouwer/PrintCap-Project/printcap/controllers/offer.controller.js:25:43
+
+  22 exports.getMyOffers = async (req, res) => {
+  23     const userId = req.user?.userId;
+  24     try {
+→ 25         const offers = await prisma.offer.findMany({
+               where: {
+                 ownerId: "cmdhsk4yt0005di5hytvz5daj",
+                 ~~~~~~~
+             ?   AND?: OfferWhereInput | OfferWhereInput[],
+             ?   OR?: OfferWhereInput[],
+             ?   NOT?: OfferWhereInput | OfferWhereInput[],
+             ?   id?: StringFilter | String,
+             ?   offerNumber?: StringFilter | String,
+             ?   machineType?: StringFilter | String,
+             ?   material?: StringFilter | String,
+             ?   location?: StringNullableFilter | String | Null,
+             ?   availableFrom?: DateTimeNullableFilter | DateTime | Null,
+             ?   availableTo?: DateTimeNullableFilter | DateTime | Null,
+             ?   capacityDetails?: StringFilter | String,
+             ?   price?: StringFilter | String,
+             ?   createdAt?: DateTimeFilter | DateTime,
+             ?   companyId?: StringFilter | String,
+             ?   creatorId?: StringFilter | String,
+             ?   company?: CompanyScalarRelationFilter | CompanyWhereInput,
+             ?   creator?: UserScalarRelationFilter | UserWhereInput
+               },
+               orderBy: {
+                 createdAt: "desc"
+               }
+             })
+
+Unknown argument `ownerId`. Available options are marked with ?.
+2025-07-24 21:54:45 error: Fout bij ophalen 'getMyOffers' voor gebruiker cmdhsk4yt0005di5hytvz5daj: 
+Invalid `prisma.offer.findMany()` invocation in
+/Users/rijkbouwer/PrintCap-Project/printcap/controllers/offer.controller.js:25:43
+
+  22 exports.getMyOffers = async (req, res) => {
+  23     const userId = req.user?.userId;
+  24     try {
+→ 25         const offers = await prisma.offer.findMany({
+               where: {
+                 ownerId: "cmdhsk4yt0005di5hytvz5daj",
+                 ~~~~~~~
+             ?   AND?: OfferWhereInput | OfferWhereInput[],
+             ?   OR?: OfferWhereInput[],
+             ?   NOT?: OfferWhereInput | OfferWhereInput[],
+             ?   id?: StringFilter | String,
+             ?   offerNumber?: StringFilter | String,
+             ?   machineType?: StringFilter | String,
+             ?   material?: StringFilter | String,
+             ?   location?: StringNullableFilter | String | Null,
+             ?   availableFrom?: DateTimeNullableFilter | DateTime | Null,
+             ?   availableTo?: DateTimeNullableFilter | DateTime | Null,
+             ?   capacityDetails?: StringFilter | String,
+             ?   price?: StringFilter | String,
+             ?   createdAt?: DateTimeFilter | DateTime,
+             ?   companyId?: StringFilter | String,
+             ?   creatorId?: StringFilter | String,
+             ?   company?: CompanyScalarRelationFilter | CompanyWhereInput,
+             ?   creator?: UserScalarRelationFilter | UserWhereInput
+               },
+               orderBy: {
+                 createdAt: "desc"
+               }
+             })
+
+Unknown argument `ownerId`. Available options are marked with ?.
+2025-07-24 21:55:09 error: Fout bij ophalen 'getMyOffers' voor gebruiker cmdhsk4yt0005di5hytvz5daj: 
+Invalid `prisma.offer.findMany()` invocation in
+/Users/rijkbouwer/PrintCap-Project/printcap/controllers/offer.controller.js:25:43
+
+  22 exports.getMyOffers = async (req, res) => {
+  23     const userId = req.user?.userId;
+  24     try {
+→ 25         const offers = await prisma.offer.findMany({
+               where: {
+                 ownerId: "cmdhsk4yt0005di5hytvz5daj",
+                 ~~~~~~~
+             ?   AND?: OfferWhereInput | OfferWhereInput[],
+             ?   OR?: OfferWhereInput[],
+             ?   NOT?: OfferWhereInput | OfferWhereInput[],
+             ?   id?: StringFilter | String,
+             ?   offerNumber?: StringFilter | String,
+             ?   machineType?: StringFilter | String,
+             ?   material?: StringFilter | String,
+             ?   location?: StringNullableFilter | String | Null,
+             ?   availableFrom?: DateTimeNullableFilter | DateTime | Null,
+             ?   availableTo?: DateTimeNullableFilter | DateTime | Null,
+             ?   capacityDetails?: StringFilter | String,
+             ?   price?: StringFilter | String,
+             ?   createdAt?: DateTimeFilter | DateTime,
+             ?   companyId?: StringFilter | String,
+             ?   creatorId?: StringFilter | String,
+             ?   company?: CompanyScalarRelationFilter | CompanyWhereInput,
+             ?   creator?: UserScalarRelationFilter | UserWhereInput
+               },
+               orderBy: {
+                 createdAt: "desc"
+               }
+             })
+
+Unknown argument `ownerId`. Available options are marked with ?.
+2025-07-24 21:55:09 error: Fout bij ophalen 'getMyOffers' voor gebruiker cmdhsk4yt0005di5hytvz5daj: 
+Invalid `prisma.offer.findMany()` invocation in
+/Users/rijkbouwer/PrintCap-Project/printcap/controllers/offer.controller.js:25:43
+
+  22 exports.getMyOffers = async (req, res) => {
+  23     const userId = req.user?.userId;
+  24     try {
+→ 25         const offers = await prisma.offer.findMany({
+               where: {
+                 ownerId: "cmdhsk4yt0005di5hytvz5daj",
+                 ~~~~~~~
+             ?   AND?: OfferWhereInput | OfferWhereInput[],
+             ?   OR?: OfferWhereInput[],
+             ?   NOT?: OfferWhereInput | OfferWhereInput[],
+             ?   id?: StringFilter | String,
+             ?   offerNumber?: StringFilter | String,
+             ?   machineType?: StringFilter | String,
+             ?   material?: StringFilter | String,
+             ?   location?: StringNullableFilter | String | Null,
+             ?   availableFrom?: DateTimeNullableFilter | DateTime | Null,
+             ?   availableTo?: DateTimeNullableFilter | DateTime | Null,
+             ?   capacityDetails?: StringFilter | String,
+             ?   price?: StringFilter | String,
+             ?   createdAt?: DateTimeFilter | DateTime,
+             ?   companyId?: StringFilter | String,
+             ?   creatorId?: StringFilter | String,
+             ?   company?: CompanyScalarRelationFilter | CompanyWhereInput,
+             ?   creator?: UserScalarRelationFilter | UserWhereInput
+               },
+               orderBy: {
+                 createdAt: "desc"
+               }
+             })
+
+Unknown argument `ownerId`. Available options are marked with ?.
+2025-07-24 21:57:47 error: Fout bij ophalen 'getArchivedJobs' voor gebruiker cmdhsk4yt0005di5hytvz5daj: 
+Invalid `prisma.printJob.findMany()` invocation in
+/Users/rijkbouwer/PrintCap-Project/printcap/controllers/archive.controller.js:13:52
+
+  10 try {
+  11     // Een 'gearchiveerde' opdracht is 'completed' of 'cancelled'.
+  12     // De gebruiker moet ofwel de klant of de winnaar zijn om het te zien.
+→ 13     const archivedJobs = await prisma.printJob.findMany({
+           where: {
+             status: {
+               in: [
+                 "completed",
+                 "cancelled"
+               ]
+             },
+             OR: [
+               {
+                 customerId: "cmdhsk4yt0005di5hytvz5daj"
+               },
+               {
+                 winnerProviderId: "cmdhsk4yt0005di5hytvz5daj"
+               }
+             ]
+           },
+           orderBy: {
+             updatedAt: "desc"
+           }
+         })
+
+Unknown argument `customerId`. Available options are marked with ?.
+2025-07-24 21:57:47 error: Fout bij ophalen 'getArchivedJobs' voor gebruiker cmdhsk4yt0005di5hytvz5daj: 
+Invalid `prisma.printJob.findMany()` invocation in
+/Users/rijkbouwer/PrintCap-Project/printcap/controllers/archive.controller.js:13:52
+
+  10 try {
+  11     // Een 'gearchiveerde' opdracht is 'completed' of 'cancelled'.
+  12     // De gebruiker moet ofwel de klant of de winnaar zijn om het te zien.
+→ 13     const archivedJobs = await prisma.printJob.findMany({
+           where: {
+             status: {
+               in: [
+                 "completed",
+                 "cancelled"
+               ]
+             },
+             OR: [
+               {
+                 customerId: "cmdhsk4yt0005di5hytvz5daj"
+               },
+               {
+                 winnerProviderId: "cmdhsk4yt0005di5hytvz5daj"
+               }
+             ]
+           },
+           orderBy: {
+             updatedAt: "desc"
+           }
+         })
+
+Unknown argument `customerId`. Available options are marked with ?.
+2025-07-25 07:33:10 error: Fout bij ophalen 'getMyAssignedTasks' voor gebruiker cmdhsk4yt0005di5hytvz5daj: 
+Invalid `prisma.printJob.findMany()` invocation in
+/Users/rijkbouwer/PrintCap-Project/printcap/controllers/task.controller.js:12:52
+
+   9 logger.debug(`Functie 'getMyAssignedTasks' gestart voor gebruiker ${userId}`);
+  10 
+  11 try {
+→ 12     const assignedJobs = await prisma.printJob.findMany({
+           where: {
+             assigneeId: "cmdhsk4yt0005di5hytvz5daj",
+             ~~~~~~~~~~
+             status: {
+               notIn: [
+                 "completed",
+                 "cancelled",
+                 "rejected"
+               ]
+             },
+         ?   AND?: PrintJobWhereInput | PrintJobWhereInput[],
+         ?   OR?: PrintJobWhereInput[],
+         ?   NOT?: PrintJobWhereInput | PrintJobWhereInput[],
+         ?   id?: StringFilter | String,
+         ?   jobNumber?: StringFilter | String,
+         ?   title?: StringFilter | String,
+         ?   description?: StringFilter | String,
+         ?   quantity?: IntFilter | Int,
+         ?   material?: StringFilter | String,
+         ?   format?: StringNullableFilter | String | Null,
+         ?   deadline?: DateTimeNullableFilter | DateTime | Null,
+         ?   quotingDeadline?: DateTimeNullableFilter | DateTime | Null,
+         ?   isPublic?: BoolFilter | Boolean,
+         ?   reviewSubmitted?: BoolFilter | Boolean,
+         ?   createdAt?: DateTimeFilter | DateTime,
+         ?   updatedAt?: DateTimeFilter | DateTime,
+         ?   companyId?: StringFilter | String,
+         ?   creatorId?: StringFilter | String,
+         ?   winnerProviderId?: StringNullableFilter | String | Null,
+         ?   company?: CompanyScalarRelationFilter | CompanyWhereInput,
+         ?   creator?: UserScalarRelationFilter | UserWhereInput,
+         ?   quotes?: QuoteListRelationFilter,
+         ?   reviews?: ReviewListRelationFilter,
+         ?   productionSteps?: ProductionStepListRelationFilter
+           },
+           include: {
+             company: {
+               select: {
+                 name: true
+               }
+             }
+           },
+           orderBy: {
+             createdAt: "desc"
+           }
+         })
+
+Unknown argument `assigneeId`. Available options are marked with ?.
+2025-07-25 07:33:10 error: Fout bij ophalen 'getMyAssignedTasks' voor gebruiker cmdhsk4yt0005di5hytvz5daj: 
+Invalid `prisma.printJob.findMany()` invocation in
+/Users/rijkbouwer/PrintCap-Project/printcap/controllers/task.controller.js:12:52
+
+   9 logger.debug(`Functie 'getMyAssignedTasks' gestart voor gebruiker ${userId}`);
+  10 
+  11 try {
+→ 12     const assignedJobs = await prisma.printJob.findMany({
+           where: {
+             assigneeId: "cmdhsk4yt0005di5hytvz5daj",
+             ~~~~~~~~~~
+             status: {
+               notIn: [
+                 "completed",
+                 "cancelled",
+                 "rejected"
+               ]
+             },
+         ?   AND?: PrintJobWhereInput | PrintJobWhereInput[],
+         ?   OR?: PrintJobWhereInput[],
+         ?   NOT?: PrintJobWhereInput | PrintJobWhereInput[],
+         ?   id?: StringFilter | String,
+         ?   jobNumber?: StringFilter | String,
+         ?   title?: StringFilter | String,
+         ?   description?: StringFilter | String,
+         ?   quantity?: IntFilter | Int,
+         ?   material?: StringFilter | String,
+         ?   format?: StringNullableFilter | String | Null,
+         ?   deadline?: DateTimeNullableFilter | DateTime | Null,
+         ?   quotingDeadline?: DateTimeNullableFilter | DateTime | Null,
+         ?   isPublic?: BoolFilter | Boolean,
+         ?   reviewSubmitted?: BoolFilter | Boolean,
+         ?   createdAt?: DateTimeFilter | DateTime,
+         ?   updatedAt?: DateTimeFilter | DateTime,
+         ?   companyId?: StringFilter | String,
+         ?   creatorId?: StringFilter | String,
+         ?   winnerProviderId?: StringNullableFilter | String | Null,
+         ?   company?: CompanyScalarRelationFilter | CompanyWhereInput,
+         ?   creator?: UserScalarRelationFilter | UserWhereInput,
+         ?   quotes?: QuoteListRelationFilter,
+         ?   reviews?: ReviewListRelationFilter,
+         ?   productionSteps?: ProductionStepListRelationFilter
+           },
+           include: {
+             company: {
+               select: {
+                 name: true
+               }
+             }
+           },
+           orderBy: {
+             createdAt: "desc"
+           }
+         })
+
+Unknown argument `assigneeId`. Available options are marked with ?.
+2025-07-25 11:33:42 error: Fout bij inloggen: data and hash arguments required
+2025-07-25 11:33:51 error: Fout bij inloggen: data and hash arguments required
+2025-07-25 11:34:21 error: Fout bij inloggen: data and hash arguments required
+2025-07-25 12:29:02 error: Fout bij inloggen: data and hash arguments required

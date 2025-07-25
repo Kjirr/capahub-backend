@@ -1,3 +1,5 @@
+// prisma/schema.prisma
+
 generator client {
   provider = "prisma-client-js"
 }
@@ -7,91 +9,131 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model Company {
+  id        String   @id @default(cuid())
+  name      String
+  kvk       String   @unique
+  plaats    String?
+  adres     String?
+  postcode  String?
+  telefoon  String?
+  iban      String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  users   User[]
+  jobs    PrintJob[]
+  offers  Offer[]
+  quotes  Quote[]
+  reviews Review[]
+}
+
 model User {
-  id                      String      @id @default(cuid())
-  email                   String      @unique
-  bedrijfsnaam            String
-  kvk                     String      @unique
-  passwordHash            String
-  status                  String      @default("pending_approval")
-  role                    String      @default("provider")
-  emailVerified           Boolean     @default(false)
-  emailVerificationToken  String?     @unique
-  capabilities            Json        @default("[]") // Voor opslaan van machinepark etc.
-  createdAt               DateTime    @default(now())
-  updatedAt               DateTime    @updatedAt
+  id                      String   @id @default(cuid())
+  email                   String   @unique
+  passwordHash            String?
+  name                    String
+  status                  String   @default("pending_approval")
+  role                    String   @default("provider")
+  companyRole             String   @default("member")
+  emailVerified           Boolean  @default(false)
+  activationToken         String?  @unique
+  createdAt               DateTime @default(now())
+  updatedAt               DateTime @updatedAt
   
-  jobs                    PrintJob[]  @relation("CustomerJobs")
-  wonJobs                 PrintJob[]  @relation("WonJobs")
-  quotes                  Quote[]     @relation("ProviderQuotes")
-  offers                  Offer[]     @relation("ProviderOffers")
-  reviews                 Review[]    @relation("ProviderReviews")
-  notifications   Notification[]
+  companyId               String
+  company                 Company  @relation(fields: [companyId], references: [id])
+
+  // De "terug-links" voor de relaties
+  assignedJobs            PrintJob[] @relation("AssignedJobs")
+  assignedQuotes          Quote[]    @relation("AssignedQuotes")
+  submittedQuotes         Quote[]    @relation("SubmittedQuotes")
+  submittedOffers         Offer[]
+  createdJobs             PrintJob[] @relation("CreatedJobs")
+  notifications           Notification[]
 }
 
 model PrintJob {
-  id                String    @id @default(cuid())
-  title             String
-  description       String
-  quantity          Int
-  material          String
-  format            String?   
-  deadline          DateTime?
-  status            String    @default("quoting")
-  isPublic          Boolean   @default(false) // Voor de marktplaats
-  reviewSubmitted   Boolean   @default(false)
-  createdAt         DateTime  @default(now())
-  updatedAt         DateTime  @updatedAt
+  id                 String   @id @default(cuid())
+  jobNumber          String   @unique
+  title              String
+  description        String
+  quantity           Int
+  material           String
+  format             String?
+  deadline           DateTime?
+  quotingDeadline    DateTime?
+  status             String   @default("quoting")
+  isPublic           Boolean  @default(false)
+  reviewSubmitted    Boolean  @default(false)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
 
-  customerId        String
-  customer          User      @relation("CustomerJobs", fields: [customerId], references: [id])
-  
-  winnerProviderId  String?
-  winner            User?     @relation("WonJobs", fields: [winnerProviderId], references: [id])
-  
-  quotes            Quote[]
-  reviews           Review[]
-  productionSteps ProductionStep[]
+  companyId          String
+  company            Company  @relation(fields: [companyId], references: [id])
+  creatorId          String
+  creator            User     @relation("CreatedJobs", fields: [creatorId], references: [id])
+
+  assigneeId         String?
+  assignee           User?    @relation("AssignedJobs", fields: [assigneeId], references: [id])
+
+  winnerProviderId   String?
+  quotes             Quote[]
+  reviews            Review[]
+  productionSteps    ProductionStep[]
 }
 
 model Quote {
-  id              String    @id @default(cuid())
+  id              String   @id @default(cuid())
+  quoteNumber     String   @unique
   price           Float
   deliveryTime    String
   comments        String?
-  status          String    @default("offered")
-  createdAt       DateTime  @default(now())
-  statusUpdatedAt DateTime  @updatedAt
+  status          String   @default("offered")
+  createdAt       DateTime @default(now())
+  statusUpdatedAt DateTime @updatedAt
+
   jobId           String
-  job             PrintJob  @relation(fields: [jobId], references: [id])
+  job             PrintJob @relation(fields: [jobId], references: [id], onDelete: Cascade)
   
-  providerId      String
-  provider        User      @relation("ProviderQuotes", fields: [providerId], references: [id])
+  companyId       String
+  company         Company  @relation(fields: [companyId], references: [id])
+  submitterId     String
+  submitter       User     @relation("SubmittedQuotes", fields: [submitterId], references: [id])
+
+  assigneeId      String?
+  assignee        User?    @relation("AssignedQuotes", fields: [assigneeId], references: [id])
 }
 
 model Offer {
-  id              String   @id @default(cuid())
+  id              String    @id @default(cuid())
+  offerNumber     String    @unique
   machineType     String
   material        String
+  location        String?
+  availableFrom   DateTime?
+  availableTo     DateTime?
   capacityDetails String
   price           String
-  createdAt       DateTime @default(now())
-  
-  ownerId         String
-  owner           User     @relation("ProviderOffers", fields: [ownerId], references: [id])
+  createdAt       DateTime  @default(now())
+
+  companyId       String
+  company         Company   @relation(fields: [companyId], references: [id])
+  creatorId       String
+  creator         User      @relation(fields: [creatorId], references: [id])
 }
 
 model Review {
-  id          String   @id @default(cuid())
-  rating      Int
-  comment     String?
-  createdAt   DateTime @default(now())
+  id         String   @id @default(cuid())
+  rating     Int
+  comment    String?
+  createdAt  DateTime @default(now())
 
-  jobId       String
-  job         PrintJob @relation(fields: [jobId], references: [id])
+  jobId      String
+  job        PrintJob @relation(fields: [jobId], references: [id], onDelete: Cascade)
   
-  providerId  String
-  provider    User     @relation("ProviderReviews", fields: [providerId], references: [id])
+  companyId  String
+  company    Company  @relation(fields: [companyId], references: [id])
 }
 
 model Notification {
@@ -100,20 +142,18 @@ model Notification {
   isRead    Boolean  @default(false)
   createdAt DateTime @default(now())
 
-  // Relatie: Elke notificatie is voor één specifieke gebruiker
   userId    String
   user      User     @relation(fields: [userId], references: [id])
 }
 
 model ProductionStep {
   id        String   @id @default(cuid())
-  title     String   // bv. "Prepress-controle", "Drukken", "Afwerking"
-  status    String   @default("pending") // bv. pending, in_progress, completed
+  title     String
+  status    String   @default("pending")
   notes     String?
-  order     Int      // Om de volgorde te bepalen
+  order     Int
   createdAt DateTime @default(now())
 
-  // Relatie: Elke stap hoort bij één opdracht
   jobId     String
   job       PrintJob @relation(fields: [jobId], references: [id], onDelete: Cascade)
 }
