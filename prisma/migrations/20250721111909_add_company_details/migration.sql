@@ -1,6 +1,0 @@
--- AlterTable
-ALTER TABLE "User" ADD COLUMN "adres" TEXT;
-ALTER TABLE "User" ADD COLUMN "iban" TEXT;
-ALTER TABLE "User" ADD COLUMN "plaats" TEXT;
-ALTER TABLE "User" ADD COLUMN "postcode" TEXT;
-ALTER TABLE "User" ADD COLUMN "telefoon" TEXT;
