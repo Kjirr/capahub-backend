@@ -32,14 +32,30 @@ exports.setupAdmin = async (req, res) => {
             return res.status(400).json({ error: 'Ongeldige data.' });
         }
         await prisma.$transaction(async (tx) => {
+            const freePlan = await tx.plan.findUnique({ where: { name: 'FREE' } });
+            if (!freePlan) {
+                throw new Error("Het 'FREE' abonnement is niet gevonden in de database. Draai eerst de seed.");
+            }
+            
             const adminCompany = await tx.company.create({
-                data: { name: 'CapaPrint Admin', kvk: `ADMIN-${Date.now()}` }
+                data: { 
+                    name: 'PrntGo Admin', 
+                    kvk: `ADMIN-${Date.now()}`,
+                    planId: freePlan.id 
+                }
             });
+            
             const passwordHash = await bcrypt.hash(password, 10);
             await tx.user.create({
                 data: {
-                    email: ADMIN_EMAIL, passwordHash, name: 'Administrator', role: 'admin',
-                    status: 'active', emailVerified: true, companyId: adminCompany.id, companyRole: 'owner'
+                    email: ADMIN_EMAIL, 
+                    passwordHash, 
+                    name: 'Administrator', 
+                    role: 'admin',
+                    status: 'active', 
+                    emailVerified: true, 
+                    companyId: adminCompany.id, 
+                    companyRole: 'owner'
                 },
             });
         });
@@ -68,13 +84,13 @@ exports.getAllUsers = async (req, res) => {
     try {
         const users = await prisma.user.findMany({
             orderBy: { createdAt: 'desc' },
-            select: {
-                id: true, name: true, email: true, status: true, companyRole: true, createdAt: true,
-                company: { select: { name: true } }
+            include: {
+                company: true
             }
         });
         res.status(200).json(users);
     } catch (error) {
+        logger.error(`Fout bij ophalen van alle gebruikers: ${error.message}`);
         res.status(500).json({ error: 'Kon gebruikers niet ophalen.' });
     }
 };
@@ -100,6 +116,7 @@ exports.getAllCompanies = async (req, res) => {
         const companies = await prisma.company.findMany({
             orderBy: { createdAt: 'desc' },
             include: {
+                plan: true,
                 _count: {
                     select: { users: true, jobs: true }
                 }
@@ -109,5 +126,88 @@ exports.getAllCompanies = async (req, res) => {
     } catch (error) {
         logger.error(`Fout bij ophalen alle bedrijven: ${error.message}`);
         res.status(500).json({ error: 'Kon bedrijven niet ophalen.' });
+    }
+};
+
+// --- FUNCTIES VOOR ABONNEMENTENBEHEER ---
+exports.getPlans = async (req, res) => {
+    try {
+        const plans = await prisma.plan.findMany({
+            include: {
+                permissions: {
+                    select: { id: true, name: true }
+                }
+            },
+            orderBy: { name: 'asc' }
+        });
+        res.status(200).json(plans);
+    } catch (error) {
+        logger.error(`Fout bij ophalen van plannen: ${error.message}`);
+        res.status(500).json({ error: 'Kon plannen niet ophalen.' });
+    }
+};
+
+exports.getPermissions = async (req, res) => {
+    try {
+        const permissions = await prisma.permission.findMany({
+            orderBy: { name: 'asc' }
+        });
+        res.status(200).json(permissions);
+    } catch (error) {
+        logger.error(`Fout bij ophalen van permissies: ${error.message}`);
+        res.status(500).json({ error: 'Kon permissies niet ophalen.' });
+    }
+};
+
+exports.updatePlanPermissions = async (req, res) => {
+    const { planId } = req.params;
+    const { permissionIds } = req.body;
+    if (!Array.isArray(permissionIds)) {
+        return res.status(400).json({ error: 'Input moet een array van permission IDs zijn.' });
+    }
+    try {
+        await prisma.plan.update({
+            where: { id: planId },
+            data: {
+                permissions: {
+                    set: permissionIds.map(id => ({ id: id }))
+                }
+            }
+        });
+        logger.info(`Permissies voor plan ${planId} bijgewerkt door admin ${req.user.userId}`);
+        res.status(200).json({ message: 'Permissies succesvol bijgewerkt.' });
+    } catch (error) {
+        logger.error(`Fout bij bijwerken van permissies voor plan ${planId}: ${error.message}`);
+        res.status(500).json({ error: 'Kon permissies niet bijwerken.' });
+    }
+};
+
+// --- NIEUWE FUNCTIES VOOR DASHBOARD DATA ---
+exports.getPendingUsers = async (req, res) => {
+    try {
+        const users = await prisma.user.findMany({
+            where: { status: 'pending_approval' },
+            take: 5,
+            orderBy: { createdAt: 'desc' },
+            include: { company: { select: { name: true } } }
+        });
+        res.status(200).json(users);
+    } catch (error) {
+        logger.error(`Fout bij ophalen van wachtende gebruikers: ${error.message}`);
+        res.status(500).json({ error: 'Kon wachtende gebruikers niet ophalen.' });
+    }
+};
+
+exports.getRecentCompanies = async (req, res) => {
+    try {
+        const companies = await prisma.company.findMany({
+            take: 5,
+            orderBy: { createdAt: 'desc' },
+            include: { plan: true }
+        });
+        res.status(200).json(companies);
+    } catch (error) {
+        logger.error(`Fout bij ophalen van recente bedrijven: ${error.message}`);
+        res.status(500).json({ error: 'Kon recente bedrijven niet ophalen.' });
     }
 };

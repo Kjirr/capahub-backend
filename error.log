@@ -1746,3 +1746,711 @@ Unknown argument `assigneeId`. Available options are marked with ?.
 2025-07-25 11:33:51 error: Fout bij inloggen: data and hash arguments required
 2025-07-25 11:34:21 error: Fout bij inloggen: data and hash arguments required
 2025-07-25 12:29:02 error: Fout bij inloggen: data and hash arguments required
+2025-07-29 17:06:06 error: Fout bij ophalen van inkooporder cmdomnlj30001dij12dpha3gl: 
+Invalid `prisma.purchaseOrder.findFirst()` invocation in
+/Users/rijkbouwer/PrintCap-Project/printcap/controllers/purchase-order.controller.js:24:202
+
+  21 
+  22 // getPurchaseOrders, getPurchaseOrderById, createPurchaseOrder blijven ongewijzigd...
+  23 exports.getPurchaseOrders = async (req, res) => { /* ... ongewijzigde code ... */ const { companyId } = req.user; try { const purchaseOrders = await prisma.purchaseOrder.findMany({ where: { companyId: companyId }, include: { supplier: { select: { name: true } }, items: { select: { id: true } } }, orderBy: { orderDate: 'desc' } }); res.status(200).json(purchaseOrders); } catch (error) { logger.error(`Fout bij ophalen inkooporders voor bedrijf ${companyId}: ${error.message}`); res.status(500).json({ error: 'Kon inkooporders niet ophalen.' }); } };
+→ 24 exports.getPurchaseOrderById = async (req, res) => { /* ... ongewijzigde code ... */ const { companyId } = req.user; const { poId } = req.params; try { const purchaseOrder = await prisma.purchaseOrder.findFirst({
+       where: {
+         id: "cmdomnlj30001dij12dpha3gl",
+         companyId: "cmdnk5z1s0006diruvqcbrx2h"
+       },
+       include: {
+         supplier: true,
+         items: {
+           include: {
+             material: {
+               select: {
+                 name: true,
+                 stockUnit: true,
+                 ~~~~~~~~~
+     ?           id?: true,
+     ?           type?: true,
+     ?           pricingModel?: true,
+     ?           price?: true,
+     ?           sheetWidth_mm?: true,
+     ?           sheetHeight_mm?: true,
+     ?           rollWidth_mm?: true,
+     ?           createdAt?: true,
+     ?           updatedAt?: true,
+     ?           companyId?: true,
+     ?           company?: true,
+     ?           purchaseOrderItems?: true,
+     ?           inventoryItems?: true,
+     ?           _count?: true
+               }
+             }
+           }
+         }
+       }
+     })
+
+Unknown field `stockUnit` for select statement on model `Material`. Available options are marked with ?.
+2025-07-29 17:06:06 error: Fout bij ophalen van inkooporder cmdomnlj30001dij12dpha3gl: 
+Invalid `prisma.purchaseOrder.findFirst()` invocation in
+/Users/rijkbouwer/PrintCap-Project/printcap/controllers/purchase-order.controller.js:24:202
+
+  21 
+  22 // getPurchaseOrders, getPurchaseOrderById, createPurchaseOrder blijven ongewijzigd...
+  23 exports.getPurchaseOrders = async (req, res) => { /* ... ongewijzigde code ... */ const { companyId } = req.user; try { const purchaseOrders = await prisma.purchaseOrder.findMany({ where: { companyId: companyId }, include: { supplier: { select: { name: true } }, items: { select: { id: true } } }, orderBy: { orderDate: 'desc' } }); res.status(200).json(purchaseOrders); } catch (error) { logger.error(`Fout bij ophalen inkooporders voor bedrijf ${companyId}: ${error.message}`); res.status(500).json({ error: 'Kon inkooporders niet ophalen.' }); } };
+→ 24 exports.getPurchaseOrderById = async (req, res) => { /* ... ongewijzigde code ... */ const { companyId } = req.user; const { poId } = req.params; try { const purchaseOrder = await prisma.purchaseOrder.findFirst({
+       where: {
+         id: "cmdomnlj30001dij12dpha3gl",
+         companyId: "cmdnk5z1s0006diruvqcbrx2h"
+       },
+       include: {
+         supplier: true,
+         items: {
+           include: {
+             material: {
+               select: {
+                 name: true,
+                 stockUnit: true,
+                 ~~~~~~~~~
+     ?           id?: true,
+     ?           type?: true,
+     ?           pricingModel?: true,
+     ?           price?: true,
+     ?           sheetWidth_mm?: true,
+     ?           sheetHeight_mm?: true,
+     ?           rollWidth_mm?: true,
+     ?           createdAt?: true,
+     ?           updatedAt?: true,
+     ?           companyId?: true,
+     ?           company?: true,
+     ?           purchaseOrderItems?: true,
+     ?           inventoryItems?: true,
+     ?           _count?: true
+               }
+             }
+           }
+         }
+       }
+     })
+
+Unknown field `stockUnit` for select statement on model `Material`. Available options are marked with ?.
+2025-07-29 17:07:28 error: Fout bij ophalen van inkooporder cmdomnlj30001dij12dpha3gl: 
+Invalid `prisma.purchaseOrder.findFirst()` invocation in
+/Users/rijkbouwer/PrintCap-Project/printcap/controllers/purchase-order.controller.js:24:202
+
+  21 
+  22 // getPurchaseOrders, getPurchaseOrderById, createPurchaseOrder blijven ongewijzigd...
+  23 exports.getPurchaseOrders = async (req, res) => { /* ... ongewijzigde code ... */ const { companyId } = req.user; try { const purchaseOrders = await prisma.purchaseOrder.findMany({ where: { companyId: companyId }, include: { supplier: { select: { name: true } }, items: { select: { id: true } } }, orderBy: { orderDate: 'desc' } }); res.status(200).json(purchaseOrders); } catch (error) { logger.error(`Fout bij ophalen inkooporders voor bedrijf ${companyId}: ${error.message}`); res.status(500).json({ error: 'Kon inkooporders niet ophalen.' }); } };
+→ 24 exports.getPurchaseOrderById = async (req, res) => { /* ... ongewijzigde code ... */ const { companyId } = req.user; const { poId } = req.params; try { const purchaseOrder = await prisma.purchaseOrder.findFirst({
+       where: {
+         id: "cmdomnlj30001dij12dpha3gl",
+         companyId: "cmdnk5z1s0006diruvqcbrx2h"
+       },
+       include: {
+         supplier: true,
+         items: {
+           include: {
+             material: {
+               select: {
+                 name: true,
+                 stockUnit: true,
+                 ~~~~~~~~~
+     ?           id?: true,
+     ?           type?: true,
+     ?           pricingModel?: true,
+     ?           price?: true,
+     ?           sheetWidth_mm?: true,
+     ?           sheetHeight_mm?: true,
+     ?           rollWidth_mm?: true,
+     ?           createdAt?: true,
+     ?           updatedAt?: true,
+     ?           companyId?: true,
+     ?           company?: true,
+     ?           purchaseOrderItems?: true,
+     ?           inventoryItems?: true,
+     ?           _count?: true
+               }
+             }
+           }
+         }
+       }
+     })
+
+Unknown field `stockUnit` for select statement on model `Material`. Available options are marked with ?.
+2025-07-29 17:07:28 error: Fout bij ophalen van inkooporder cmdomnlj30001dij12dpha3gl: 
+Invalid `prisma.purchaseOrder.findFirst()` invocation in
+/Users/rijkbouwer/PrintCap-Project/printcap/controllers/purchase-order.controller.js:24:202
+
+  21 
+  22 // getPurchaseOrders, getPurchaseOrderById, createPurchaseOrder blijven ongewijzigd...
+  23 exports.getPurchaseOrders = async (req, res) => { /* ... ongewijzigde code ... */ const { companyId } = req.user; try { const purchaseOrders = await prisma.purchaseOrder.findMany({ where: { companyId: companyId }, include: { supplier: { select: { name: true } }, items: { select: { id: true } } }, orderBy: { orderDate: 'desc' } }); res.status(200).json(purchaseOrders); } catch (error) { logger.error(`Fout bij ophalen inkooporders voor bedrijf ${companyId}: ${error.message}`); res.status(500).json({ error: 'Kon inkooporders niet ophalen.' }); } };
+→ 24 exports.getPurchaseOrderById = async (req, res) => { /* ... ongewijzigde code ... */ const { companyId } = req.user; const { poId } = req.params; try { const purchaseOrder = await prisma.purchaseOrder.findFirst({
+       where: {
+         id: "cmdomnlj30001dij12dpha3gl",
+         companyId: "cmdnk5z1s0006diruvqcbrx2h"
+       },
+       include: {
+         supplier: true,
+         items: {
+           include: {
+             material: {
+               select: {
+                 name: true,
+                 stockUnit: true,
+                 ~~~~~~~~~
+     ?           id?: true,
+     ?           type?: true,
+     ?           pricingModel?: true,
+     ?           price?: true,
+     ?           sheetWidth_mm?: true,
+     ?           sheetHeight_mm?: true,
+     ?           rollWidth_mm?: true,
+     ?           createdAt?: true,
+     ?           updatedAt?: true,
+     ?           companyId?: true,
+     ?           company?: true,
+     ?           purchaseOrderItems?: true,
+     ?           inventoryItems?: true,
+     ?           _count?: true
+               }
+             }
+           }
+         }
+       }
+     })
+
+Unknown field `stockUnit` for select statement on model `Material`. Available options are marked with ?.
+2025-07-29 17:11:29 error: Fout bij ophalen van inkooporder cmdomnlj30001dij12dpha3gl: 
+Invalid `prisma.purchaseOrder.findFirst()` invocation in
+/Users/rijkbouwer/PrintCap-Project/printcap/controllers/purchase-order.controller.js:44:58
+
+  41 const { companyId } = req.user;
+  42 const { poId } = req.params;
+  43 try {
+→ 44     const purchaseOrder = await prisma.purchaseOrder.findFirst({
+           where: {
+             id: "cmdomnlj30001dij12dpha3gl",
+             companyId: "cmdnk5z1s0006diruvqcbrx2h"
+           },
+           include: {
+             supplier: true,
+             items: {
+               include: {
+                 material: {
+                   select: {
+                     name: true,
+                     stockUnit: true,
+                     ~~~~~~~~~
+         ?           id?: true,
+         ?           type?: true,
+         ?           pricingModel?: true,
+         ?           price?: true,
+         ?           sheetWidth_mm?: true,
+         ?           sheetHeight_mm?: true,
+         ?           rollWidth_mm?: true,
+         ?           createdAt?: true,
+         ?           updatedAt?: true,
+         ?           companyId?: true,
+         ?           company?: true,
+         ?           purchaseOrderItems?: true,
+         ?           inventoryItems?: true,
+         ?           _count?: true
+                   }
+                 }
+               }
+             }
+           }
+         })
+
+Unknown field `stockUnit` for select statement on model `Material`. Available options are marked with ?.
+2025-07-29 17:11:29 error: Fout bij ophalen van inkooporder cmdomnlj30001dij12dpha3gl: 
+Invalid `prisma.purchaseOrder.findFirst()` invocation in
+/Users/rijkbouwer/PrintCap-Project/printcap/controllers/purchase-order.controller.js:44:58
+
+  41 const { companyId } = req.user;
+  42 const { poId } = req.params;
+  43 try {
+→ 44     const purchaseOrder = await prisma.purchaseOrder.findFirst({
+           where: {
+             id: "cmdomnlj30001dij12dpha3gl",
+             companyId: "cmdnk5z1s0006diruvqcbrx2h"
+           },
+           include: {
+             supplier: true,
+             items: {
+               include: {
+                 material: {
+                   select: {
+                     name: true,
+                     stockUnit: true,
+                     ~~~~~~~~~
+         ?           id?: true,
+         ?           type?: true,
+         ?           pricingModel?: true,
+         ?           price?: true,
+         ?           sheetWidth_mm?: true,
+         ?           sheetHeight_mm?: true,
+         ?           rollWidth_mm?: true,
+         ?           createdAt?: true,
+         ?           updatedAt?: true,
+         ?           companyId?: true,
+         ?           company?: true,
+         ?           purchaseOrderItems?: true,
+         ?           inventoryItems?: true,
+         ?           _count?: true
+                   }
+                 }
+               }
+             }
+           }
+         })
+
+Unknown field `stockUnit` for select statement on model `Material`. Available options are marked with ?.
+2025-07-29 22:04:05 error: Fout bij inloggen: 
+Invalid `prisma.user.findUnique()` invocation in
+/Users/rijkbouwer/PrintCap-Project/printcap/controllers/auth.controller.js:63:40
+
+  60 const { email, password } = req.body;
+  61 
+  62 // --- AANGEPAST: Haal gebruiker, permissies én bedrijfsinfo (incl. plan) in één keer op ---
+→ 63 const user = await prisma.user.findUnique({
+       where: {
+         email: "rijk.bouwer@vanas.nl"
+       },
+       include: {
+         permissions: {
+           select: {
+             name: true
+           }
+         },
+         company: {
+           include: {
+             plan: true,
+             ~~~~
+     ?       users?: true,
+     ?       jobs?: true,
+     ?       offers?: true,
+     ?       quotes?: true,
+     ?       reviews?: true,
+     ?       materials?: true,
+     ?       suppliers?: true,
+     ?       purchaseOrders?: true,
+     ?       stockLocations?: true
+           }
+         }
+       }
+     })
+
+Unknown field `plan` for include statement on model `Company`. Available options are marked with ?.
+2025-07-29 22:04:14 error: Fout bij inloggen: 
+Invalid `prisma.user.findUnique()` invocation in
+/Users/rijkbouwer/PrintCap-Project/printcap/controllers/auth.controller.js:63:40
+
+  60 const { email, password } = req.body;
+  61 
+  62 // --- AANGEPAST: Haal gebruiker, permissies én bedrijfsinfo (incl. plan) in één keer op ---
+→ 63 const user = await prisma.user.findUnique({
+       where: {
+         email: "rijk.bouwer@vanas.nl"
+       },
+       include: {
+         permissions: {
+           select: {
+             name: true
+           }
+         },
+         company: {
+           include: {
+             plan: true,
+             ~~~~
+     ?       users?: true,
+     ?       jobs?: true,
+     ?       offers?: true,
+     ?       quotes?: true,
+     ?       reviews?: true,
+     ?       materials?: true,
+     ?       suppliers?: true,
+     ?       purchaseOrders?: true,
+     ?       stockLocations?: true
+           }
+         }
+       }
+     })
+
+Unknown field `plan` for include statement on model `Company`. Available options are marked with ?.
+2025-07-29 22:04:31 error: Fout bij inloggen: 
+Invalid `prisma.user.findUnique()` invocation in
+/Users/rijkbouwer/PrintCap-Project/printcap/controllers/auth.controller.js:63:40
+
+  60 const { email, password } = req.body;
+  61 
+  62 // --- AANGEPAST: Haal gebruiker, permissies én bedrijfsinfo (incl. plan) in één keer op ---
+→ 63 const user = await prisma.user.findUnique({
+       where: {
+         email: "admin@prntgo.com"
+       },
+       include: {
+         permissions: {
+           select: {
+             name: true
+           }
+         },
+         company: {
+           include: {
+             plan: true,
+             ~~~~
+     ?       users?: true,
+     ?       jobs?: true,
+     ?       offers?: true,
+     ?       quotes?: true,
+     ?       reviews?: true,
+     ?       materials?: true,
+     ?       suppliers?: true,
+     ?       purchaseOrders?: true,
+     ?       stockLocations?: true
+           }
+         }
+       }
+     })
+
+Unknown field `plan` for include statement on model `Company`. Available options are marked with ?.
+2025-07-29 22:05:59 error: Fout bij inloggen: 
+Invalid `prisma.user.findUnique()` invocation in
+/Users/rijkbouwer/PrintCap-Project/printcap/controllers/auth.controller.js:63:40
+
+  60 const { email, password } = req.body;
+  61 
+  62 // --- AANGEPAST: Haal gebruiker, permissies én bedrijfsinfo (incl. plan) in één keer op ---
+→ 63 const user = await prisma.user.findUnique({
+       where: {
+         email: "admin@prntgo.com"
+       },
+       include: {
+         permissions: {
+           select: {
+             name: true
+           }
+         },
+         company: {
+           include: {
+             plan: true,
+             ~~~~
+     ?       users?: true,
+     ?       jobs?: true,
+     ?       offers?: true,
+     ?       quotes?: true,
+     ?       reviews?: true,
+     ?       materials?: true,
+     ?       suppliers?: true,
+     ?       purchaseOrders?: true,
+     ?       stockLocations?: true
+           }
+         }
+       }
+     })
+
+Unknown field `plan` for include statement on model `Company`. Available options are marked with ?.
+2025-07-31 14:44:37 error: Fout bij ophalen notificaties voor gebruiker cmdnk5bms0005diruyek18l02: 
+Invalid `prisma.notification.findMany()` invocation in
+/Users/rijkbouwer/PrintCap-Project/printcap/controllers/notification.controller.js:10:57
+
+   7 exports.getNotifications = async (req, res) => {
+   8     const userId = req.user?.userId;
+   9     try {
+→ 10         const notifications = await prisma.notification.findMany(
+The table `public.Notification` does not exist in the current database.
+2025-07-31 14:44:39 error: Fout bij ophalen notificaties voor gebruiker cmdnk5bms0005diruyek18l02: 
+Invalid `prisma.notification.findMany()` invocation in
+/Users/rijkbouwer/PrintCap-Project/printcap/controllers/notification.controller.js:10:57
+
+   7 exports.getNotifications = async (req, res) => {
+   8     const userId = req.user?.userId;
+   9     try {
+→ 10         const notifications = await prisma.notification.findMany(
+The table `public.Notification` does not exist in the current database.
+2025-07-31 14:44:41 error: Fout bij ophalen notificaties voor gebruiker cmdnk5bms0005diruyek18l02: 
+Invalid `prisma.notification.findMany()` invocation in
+/Users/rijkbouwer/PrintCap-Project/printcap/controllers/notification.controller.js:10:57
+
+   7 exports.getNotifications = async (req, res) => {
+   8     const userId = req.user?.userId;
+   9     try {
+→ 10         const notifications = await prisma.notification.findMany(
+The table `public.Notification` does not exist in the current database.
+2025-07-31 14:44:41 error: Fout bij ophalen marktplaats: 
+Invalid `prisma.printJob.findMany()` invocation in
+/Users/rijkbouwer/PrintCap-Project/printcap/controllers/marketplace.controller.js:7:50
+
+  4 exports.getPublicJobs = async (req, res) => {
+  5     const { companyId } = req.user;
+  6     try {
+→ 7         const publicJobs = await prisma.printJob.findMany(
+The table `public.PrintJob` does not exist in the current database.
+2025-07-31 14:44:41 error: Fout bij ophalen marktplaats: 
+Invalid `prisma.printJob.findMany()` invocation in
+/Users/rijkbouwer/PrintCap-Project/printcap/controllers/marketplace.controller.js:7:50
+
+  4 exports.getPublicJobs = async (req, res) => {
+  5     const { companyId } = req.user;
+  6     try {
+→ 7         const publicJobs = await prisma.printJob.findMany(
+The table `public.PrintJob` does not exist in the current database.
+2025-07-31 14:44:48 error: Fout bij ophalen notificaties voor gebruiker cmdnk5bms0005diruyek18l02: 
+Invalid `prisma.notification.findMany()` invocation in
+/Users/rijkbouwer/PrintCap-Project/printcap/controllers/notification.controller.js:10:57
+
+   7 exports.getNotifications = async (req, res) => {
+   8     const userId = req.user?.userId;
+   9     try {
+→ 10         const notifications = await prisma.notification.findMany(
+The table `public.Notification` does not exist in the current database.
+2025-07-31 14:44:49 error: Fout bij ophalen notificaties voor gebruiker cmdnk5bms0005diruyek18l02: 
+Invalid `prisma.notification.findMany()` invocation in
+/Users/rijkbouwer/PrintCap-Project/printcap/controllers/notification.controller.js:10:57
+
+   7 exports.getNotifications = async (req, res) => {
+   8     const userId = req.user?.userId;
+   9     try {
+→ 10         const notifications = await prisma.notification.findMany(
+The table `public.Notification` does not exist in the current database.
+2025-07-31 14:44:51 error: Fout bij ophalen notificaties voor gebruiker cmdnk5bms0005diruyek18l02: 
+Invalid `prisma.notification.findMany()` invocation in
+/Users/rijkbouwer/PrintCap-Project/printcap/controllers/notification.controller.js:10:57
+
+   7 exports.getNotifications = async (req, res) => {
+   8     const userId = req.user?.userId;
+   9     try {
+→ 10         const notifications = await prisma.notification.findMany(
+The table `public.Notification` does not exist in the current database.
+2025-07-31 14:44:51 error: Fout bij ophalen 'getMySubmittedQuotes' voor gebruiker cmdnk5bms0005diruyek18l02: 
+Invalid `prisma.quote.findMany()` invocation in
+/Users/rijkbouwer/PrintCap-Project/printcap/controllers/quote.controller.js:25:43
+
+  22 exports.getMySubmittedQuotes = async (req, res) => {
+  23     const { userId } = req.user;
+  24     try {
+→ 25         const quotes = await prisma.quote.findMany(
+The table `public.Quote` does not exist in the current database.
+2025-07-31 14:44:51 error: Fout bij ophalen 'getMySubmittedQuotes' voor gebruiker cmdnk5bms0005diruyek18l02: 
+Invalid `prisma.quote.findMany()` invocation in
+/Users/rijkbouwer/PrintCap-Project/printcap/controllers/quote.controller.js:25:43
+
+  22 exports.getMySubmittedQuotes = async (req, res) => {
+  23     const { userId } = req.user;
+  24     try {
+→ 25         const quotes = await prisma.quote.findMany(
+The table `public.Quote` does not exist in the current database.
+2025-07-31 14:44:53 error: Fout bij ophalen notificaties voor gebruiker cmdnk5bms0005diruyek18l02: 
+Invalid `prisma.notification.findMany()` invocation in
+/Users/rijkbouwer/PrintCap-Project/printcap/controllers/notification.controller.js:10:57
+
+   7 exports.getNotifications = async (req, res) => {
+   8     const userId = req.user?.userId;
+   9     try {
+→ 10         const notifications = await prisma.notification.findMany(
+The table `public.Notification` does not exist in the current database.
+2025-07-31 14:44:55 error: Fout bij ophalen notificaties voor gebruiker cmdnk5bms0005diruyek18l02: 
+Invalid `prisma.notification.findMany()` invocation in
+/Users/rijkbouwer/PrintCap-Project/printcap/controllers/notification.controller.js:10:57
+
+   7 exports.getNotifications = async (req, res) => {
+   8     const userId = req.user?.userId;
+   9     try {
+→ 10         const notifications = await prisma.notification.findMany(
+The table `public.Notification` does not exist in the current database.
+2025-07-31 14:44:57 error: Fout bij ophalen notificaties voor gebruiker cmdnk5bms0005diruyek18l02: 
+Invalid `prisma.notification.findMany()` invocation in
+/Users/rijkbouwer/PrintCap-Project/printcap/controllers/notification.controller.js:10:57
+
+   7 exports.getNotifications = async (req, res) => {
+   8     const userId = req.user?.userId;
+   9     try {
+→ 10         const notifications = await prisma.notification.findMany(
+The table `public.Notification` does not exist in the current database.
+2025-07-31 14:45:03 error: Fout bij ophalen notificaties voor gebruiker cmdnk5bms0005diruyek18l02: 
+Invalid `prisma.notification.findMany()` invocation in
+/Users/rijkbouwer/PrintCap-Project/printcap/controllers/notification.controller.js:10:57
+
+   7 exports.getNotifications = async (req, res) => {
+   8     const userId = req.user?.userId;
+   9     try {
+→ 10         const notifications = await prisma.notification.findMany(
+The table `public.Notification` does not exist in the current database.
+2025-07-31 14:45:03 error: Fout bij ophalen profiel voor gebruiker cmdnk5bms0005diruyek18l02: 
+Invalid `prisma.user.findUnique()` invocation in
+/Users/rijkbouwer/PrintCap-Project/printcap/controllers/profile.controller.js:12:51
+
+   9 logger.debug(`Functie 'getProfile' gestart voor gebruiker ${userId}`);
+  10 try {
+  11     // Haal de gebruiker op en voeg het volledige bedrijfsprofiel INCLUSIEF abonnement toe
+→ 12     const userWithCompany = await prisma.user.findUnique(
+The table `public.User` does not exist in the current database.
+2025-07-31 14:45:03 error: Fout bij ophalen profiel voor gebruiker cmdnk5bms0005diruyek18l02: 
+Invalid `prisma.user.findUnique()` invocation in
+/Users/rijkbouwer/PrintCap-Project/printcap/controllers/profile.controller.js:12:51
+
+   9 logger.debug(`Functie 'getProfile' gestart voor gebruiker ${userId}`);
+  10 try {
+  11     // Haal de gebruiker op en voeg het volledige bedrijfsprofiel INCLUSIEF abonnement toe
+→ 12     const userWithCompany = await prisma.user.findUnique(
+The table `public.User` does not exist in the current database.
+2025-07-31 14:45:19 error: Fout bij ophalen notificaties voor gebruiker cmdnk5bms0005diruyek18l02: 
+Invalid `prisma.notification.findMany()` invocation in
+/Users/rijkbouwer/PrintCap-Project/printcap/controllers/notification.controller.js:10:57
+
+   7 exports.getNotifications = async (req, res) => {
+   8     const userId = req.user?.userId;
+   9     try {
+→ 10         const notifications = await prisma.notification.findMany(
+The table `public.Notification` does not exist in the current database.
+2025-07-31 14:45:50 error: Fout bij ophalen notificaties voor gebruiker cmdnk5bms0005diruyek18l02: 
+Invalid `prisma.notification.findMany()` invocation in
+/Users/rijkbouwer/PrintCap-Project/printcap/controllers/notification.controller.js:10:57
+
+   7 exports.getNotifications = async (req, res) => {
+   8     const userId = req.user?.userId;
+   9     try {
+→ 10         const notifications = await prisma.notification.findMany(
+The table `public.Notification` does not exist in the current database.
+2025-07-31 17:17:50 error: Fout bij aanmaken van materiaal voor bedrijf cmdnk5bks0003dirurn51c7au: 
+Invalid `prisma.material.create()` invocation in
+/Users/rijkbouwer/PrintCap-Project/printcap/controllers/material.controller.js:56:51
+
+  53 }
+  54 
+  55 try {
+→ 56     const newMaterial = await prisma.material.create(
+Foreign key constraint violated on the constraint: `Material_companyId_fkey`
+2025-07-31 18:41:46 error: Fout bij ophalen van materialen voor bedrijf cmdrm2r8o0009didvs7008f4s: 
+Invalid `prisma.material.findMany()` invocation in
+/Users/rijkbouwer/PrintCap-Project/printcap/controllers/material.controller.js:11:49
+
+   8 exports.getMaterials = async (req, res) => {
+   9     const { companyId } = req.user;
+  10     try {
+→ 11         const materials = await prisma.material.findMany(
+The column `Material.unit` does not exist in the current database.
+2025-07-31 18:41:46 error: Fout bij ophalen van materialen voor bedrijf cmdrm2r8o0009didvs7008f4s: 
+Invalid `prisma.material.findMany()` invocation in
+/Users/rijkbouwer/PrintCap-Project/printcap/controllers/material.controller.js:11:49
+
+   8 exports.getMaterials = async (req, res) => {
+   9     const { companyId } = req.user;
+  10     try {
+→ 11         const materials = await prisma.material.findMany(
+The column `Material.unit` does not exist in the current database.
+2025-07-31 18:48:00 error: Fout bij ophalen van materialen voor bedrijf cmdrmmwbg0009dilelr84d6g5: 
+Invalid `prisma.material.findMany()` invocation in
+/Users/rijkbouwer/PrintCap-Project/printcap/controllers/material.controller.js:11:49
+
+   8 exports.getMaterials = async (req, res) => {
+   9     const { companyId } = req.user;
+  10     try {
+→ 11         const materials = await prisma.material.findMany(
+The column `Material.unit` does not exist in the current database.
+2025-07-31 18:48:00 error: Fout bij ophalen van materialen voor bedrijf cmdrmmwbg0009dilelr84d6g5: 
+Invalid `prisma.material.findMany()` invocation in
+/Users/rijkbouwer/PrintCap-Project/printcap/controllers/material.controller.js:11:49
+
+   8 exports.getMaterials = async (req, res) => {
+   9     const { companyId } = req.user;
+  10     try {
+→ 11         const materials = await prisma.material.findMany(
+The column `Material.unit` does not exist in the current database.
+2025-07-31 18:48:17 error: Fout bij ophalen van materialen voor bedrijf cmdrmmwbg0009dilelr84d6g5: 
+Invalid `prisma.material.findMany()` invocation in
+/Users/rijkbouwer/PrintCap-Project/printcap/controllers/material.controller.js:11:49
+
+   8 exports.getMaterials = async (req, res) => {
+   9     const { companyId } = req.user;
+  10     try {
+→ 11         const materials = await prisma.material.findMany(
+The column `Material.unit` does not exist in the current database.
+2025-07-31 18:48:17 error: Fout bij ophalen van materialen voor bedrijf cmdrmmwbg0009dilelr84d6g5: 
+Invalid `prisma.material.findMany()` invocation in
+/Users/rijkbouwer/PrintCap-Project/printcap/controllers/material.controller.js:11:49
+
+   8 exports.getMaterials = async (req, res) => {
+   9     const { companyId } = req.user;
+  10     try {
+→ 11         const materials = await prisma.material.findMany(
+The column `Material.unit` does not exist in the current database.
+2025-07-31 19:44:52 error: Fout bij ophalen notificaties voor gebruiker cmdrmmwdh000bdileahaat61e: 
+Invalid `prisma.notification.findMany()` invocation in
+/Users/rijkbouwer/PrintCap-Project/printcap/controllers/notification.controller.js:10:57
+
+   7 exports.getNotifications = async (req, res) => {
+   8     const userId = req.user?.userId;
+   9     try {
+→ 10         const notifications = await prisma.notification.findMany(
+Server has closed the connection.
+2025-07-31 19:45:52 error: Fout bij ophalen notificaties voor gebruiker cmdrmmwdh000bdileahaat61e: 
+Invalid `prisma.notification.findMany()` invocation in
+/Users/rijkbouwer/PrintCap-Project/printcap/controllers/notification.controller.js:10:57
+
+   7 exports.getNotifications = async (req, res) => {
+   8     const userId = req.user?.userId;
+   9     try {
+→ 10         const notifications = await prisma.notification.findMany(
+Server has closed the connection.
+2025-07-31 19:46:52 error: Fout bij ophalen notificaties voor gebruiker cmdrmmwdh000bdileahaat61e: 
+Invalid `prisma.notification.findMany()` invocation in
+/Users/rijkbouwer/PrintCap-Project/printcap/controllers/notification.controller.js:10:57
+
+   7 exports.getNotifications = async (req, res) => {
+   8     const userId = req.user?.userId;
+   9     try {
+→ 10         const notifications = await prisma.notification.findMany(
+Server has closed the connection.
+2025-07-31 19:47:52 error: Fout bij ophalen notificaties voor gebruiker cmdrmmwdh000bdileahaat61e: 
+Invalid `prisma.notification.findMany()` invocation in
+/Users/rijkbouwer/PrintCap-Project/printcap/controllers/notification.controller.js:10:57
+
+   7 exports.getNotifications = async (req, res) => {
+   8     const userId = req.user?.userId;
+   9     try {
+→ 10         const notifications = await prisma.notification.findMany(
+Server has closed the connection.
+2025-07-31 19:48:53 error: Fout bij ophalen notificaties voor gebruiker cmdrmmwdh000bdileahaat61e: 
+Invalid `prisma.notification.findMany()` invocation in
+/Users/rijkbouwer/PrintCap-Project/printcap/controllers/notification.controller.js:10:57
+
+   7 exports.getNotifications = async (req, res) => {
+   8     const userId = req.user?.userId;
+   9     try {
+→ 10         const notifications = await prisma.notification.findMany(
+Server has closed the connection.
+2025-07-31 19:49:52 error: Fout bij ophalen notificaties voor gebruiker cmdrmmwdh000bdileahaat61e: 
+Invalid `prisma.notification.findMany()` invocation in
+/Users/rijkbouwer/PrintCap-Project/printcap/controllers/notification.controller.js:10:57
+
+   7 exports.getNotifications = async (req, res) => {
+   8     const userId = req.user?.userId;
+   9     try {
+→ 10         const notifications = await prisma.notification.findMany(
+Server has closed the connection.
+2025-07-31 19:50:53 error: Fout bij ophalen notificaties voor gebruiker cmdrmmwdh000bdileahaat61e: 
+Invalid `prisma.notification.findMany()` invocation in
+/Users/rijkbouwer/PrintCap-Project/printcap/controllers/notification.controller.js:10:57
+
+   7 exports.getNotifications = async (req, res) => {
+   8     const userId = req.user?.userId;
+   9     try {
+→ 10         const notifications = await prisma.notification.findMany(
+Server has closed the connection.
+2025-07-31 19:51:51 error: Fout bij ophalen notificaties voor gebruiker cmdrmmwdh000bdileahaat61e: 
+Invalid `prisma.notification.findMany()` invocation in
+/Users/rijkbouwer/PrintCap-Project/printcap/controllers/notification.controller.js:10:57
+
+   7 exports.getNotifications = async (req, res) => {
+   8     const userId = req.user?.userId;
+   9     try {
+→ 10         const notifications = await prisma.notification.findMany(
+Server has closed the connection.
+2025-07-31 19:52:51 error: Fout bij ophalen notificaties voor gebruiker cmdrmmwdh000bdileahaat61e: 
+Invalid `prisma.notification.findMany()` invocation in
+/Users/rijkbouwer/PrintCap-Project/printcap/controllers/notification.controller.js:10:57
+
+   7 exports.getNotifications = async (req, res) => {
+   8     const userId = req.user?.userId;
+   9     try {
+→ 10         const notifications = await prisma.notification.findMany(
+Server has closed the connection.

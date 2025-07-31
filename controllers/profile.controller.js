@@ -3,39 +3,29 @@
 const prisma = require('../prisma/prisma');
 const logger = require('../config/logger');
 
-// Functie om het profiel op te halen
+// Functie om het volledige, actuele profiel op te halen
 exports.getProfile = async (req, res) => {
-    const { userId, companyId } = req.user;
+    const { userId } = req.user;
     logger.debug(`Functie 'getProfile' gestart voor gebruiker ${userId}`);
     try {
-        // Haal zowel de gebruiker als de bedrijfsgegevens op
-        const user = await prisma.user.findUnique({
+        // Haal de gebruiker op en voeg het volledige bedrijfsprofiel INCLUSIEF abonnement toe
+        const userWithCompany = await prisma.user.findUnique({
             where: { id: userId },
-            select: { name: true, email: true }
-        });
-        const company = await prisma.company.findUnique({
-            where: { id: companyId },
-            select: { name: true, kvk: true, plaats: true, adres: true, postcode: true, telefoon: true, iban: true }
+            include: {
+                company: {
+                    include: {
+                        plan: true // Deze regel zorgt ervoor dat het abonnement wordt meegestuurd
+                    }
+                },
+            },
         });
 
-        if (!user || !company) {
+        if (!userWithCompany) {
             return res.status(404).json({ error: 'Profiel niet gevonden.' });
         }
-
-        // Combineer de data
-        const profileData = {
-            name: user.name,
-            email: user.email,
-            bedrijfsnaam: company.name,
-            kvk: company.kvk,
-            plaats: company.plaats,
-            adres: company.adres,
-            postcode: company.postcode,
-            telefoon: company.telefoon,
-            iban: company.iban
-        };
         
-        res.status(200).json(profileData);
+        res.status(200).json(userWithCompany);
+
     } catch (error) {
         logger.error(`Fout bij ophalen profiel voor gebruiker ${userId}: ${error.message}`);
         res.status(500).json({ error: 'Interne serverfout.' });
@@ -47,13 +37,12 @@ exports.updateProfile = async (req, res) => {
     const { userId, companyId } = req.user;
     logger.debug(`Functie 'updateProfile' gestart voor gebruiker ${userId}`);
     try {
-        const { name, bedrijfsnaam, plaats, adres, postcode, telefoon, iban } = req.body;
+        const { name: userName, bedrijfsnaam, plaats, adres, postcode, telefoon, iban } = req.body;
 
-        // Update de twee tabellen in één transactie
-        const [updatedUser, updatedCompany] = await prisma.$transaction([
+        await prisma.$transaction([
             prisma.user.update({
                 where: { id: userId },
-                data: { name }
+                data: { name: userName }
             }),
             prisma.company.update({
                 where: { id: companyId },

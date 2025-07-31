@@ -29,7 +29,21 @@ app.use('/api/marketplace', require('./routes/marketplace.routes'));
 app.use('/api/admin', require('./routes/admin.routes'));
 app.use('/api/team', require('./routes/team.routes'));
 app.use('/api/tasks', require('./routes/task.routes'));
+app.use('/api/materials', require('./routes/material.routes'));
+app.use('/api/suppliers', require('./routes/supplier.routes'));
+app.use('/api/purchase-orders', require('./routes/purchase-order.routes'));
+app.use('/api/stock-locations', require('./routes/stock-location.routes.js'));
+app.use('/api/subscriptions', require('./routes/subscription.routes.js'));
+
+// --- ROUTES VOOR CALCULATIE-INSTELLINGEN ---
+app.use('/api/calculation-settings/machines', require('./routes/machine.routes.js'));
+app.use('/api/calculation-settings/labor-rates', require('./routes/labor-rate.routes.js'));
+app.use('/api/calculation-settings/finishings', require('./routes/finishing.routes.js'));
+
+// --- NIEUWE ROUTE VOOR DE CALCULATOR ---
+app.use('/api/calculations', require('./routes/calculation.routes.js'));
+
 
 app.listen(PORT, () => {
-    logger.info(`CapaHub API Server draait nu op http://localhost:${PORT}`);
+    logger.info(`PrntGo API Server draait nu op http://localhost:${PORT}`);
 });

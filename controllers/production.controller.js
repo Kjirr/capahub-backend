@@ -3,22 +3,62 @@
 const prisma = require('../prisma/prisma');
 const logger = require('../config/logger');
 
-// Haalt de lijst van producties op voor het bedrijf van de gebruiker
-exports.getMyProductions = async (req, res) => {
-    const { companyId } = req.user; // Gebruik companyId uit de token
+// --- NIEUWE FUNCTIE ---
+// Haalt alle productiestappen op, gegroepeerd per status, voor het Kanban-bord
+exports.getBoardData = async (req, res) => {
+    const { companyId } = req.user;
     try {
-        const productions = await prisma.printJob.findMany({
-            where: { 
-                // Een productie is een opdracht waarbij een offerte van uw bedrijf is geaccepteerd
-                quotes: {
-                    some: {
-                        status: 'accepted',
-                        companyId: companyId
+        // Haal alle stappen op die horen bij opdrachten die dit bedrijf produceert
+        const allSteps = await prisma.productionStep.findMany({
+            where: {
+                job: {
+                    quotes: {
+                        some: {
+                            status: 'accepted',
+                            companyId: companyId
+                        }
                     }
                 }
             },
+            include: {
+                job: {
+                    select: { jobNumber: true, title: true }
+                }
+            },
+            orderBy: {
+                order: 'asc' // Sorteer de kaarten binnen een kolom op volgorde
+            }
+        });
+
+        // Groepeer de stappen in kolommen op basis van hun status
+        const boardData = {
+            pending: allSteps.filter(step => step.status === 'pending'),
+            in_progress: allSteps.filter(step => step.status === 'in_progress'),
+            completed: allSteps.filter(step => step.status === 'completed'),
+        };
+        // Voeg hier eventuele andere statussen toe als je die gebruikt
+
+        res.status(200).json(boardData);
+
+    } catch (error) {
+        logger.error(`Fout bij ophalen 'getBoardData' voor bedrijf ${companyId}: ${error.message}`);
+        res.status(500).json({ error: 'Kon data voor het planbord niet ophalen.' });
+    }
+};
+
+
+// --- BESTAANDE FUNCTIES ---
+exports.getMyProductions = async (req, res) => {
+    const { companyId } = req.user;
+    try {
+        const productions = await prisma.printJob.findMany({
+            where: { 
+                quotes: {
+                    some: { status: 'accepted', companyId: companyId }
+                }
+            },
             include: { 
-                company: { select: { name: true } }, // DE FIX: heet nu 'company'
+                company: { select: { name: true } },
                 productionSteps: true 
             },
             orderBy: { createdAt: 'desc' }
@@ -30,13 +70,12 @@ exports.getMyProductions = async (req, res) => {
     }
 };
 
-// Voegt een productiestap toe aan een opdracht
 exports.addProductionStep = async (req, res) => {
     const { jobId } = req.params;
     const { title, order } = req.body;
     try {
         const newStep = await prisma.productionStep.create({
-            data: { jobId, title, order: parseInt(order, 10) }
+            data: { jobId, title, order: parseInt(order, 10), status: 'pending' } // Standaard status
         });
         res.status(201).json(newStep);
     } catch (error) {
@@ -45,7 +84,6 @@ exports.addProductionStep = async (req, res) => {
     }
 };
 
-// Werkt de status van een productiestap bij en stuurt een notificatie
 exports.updateProductionStepStatus = async (req, res) => {
     const { stepId } = req.params;
     const { status } = req.body;
@@ -55,15 +93,11 @@ exports.updateProductionStepStatus = async (req, res) => {
             data: { status },
             include: { 
                 job: { 
-                    select: { 
-                        companyId: true,
-                        title: true 
-                    }
+                    select: { companyId: true, title: true }
                 }
             } 
         });
 
-        // Zoek de eigenaar van het bedrijf om een notificatie te sturen
         const ownerCompany = await prisma.company.findUnique({
             where: { id: updatedStep.job.companyId },
             include: { users: { where: { companyRole: 'owner' } } }
@@ -73,10 +107,7 @@ exports.updateProductionStepStatus = async (req, res) => {
             const owner = ownerCompany.users[0];
             const message = `Status van '${updatedStep.title}' voor opdracht '${updatedStep.job.title}' is nu: ${status}.`;
             await prisma.notification.create({
-                data: {
-                    userId: owner.id,
-                    message: message,
-                }
+                data: { userId: owner.id, message: message }
             });
         }
 

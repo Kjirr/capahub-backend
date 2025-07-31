@@ -9,100 +9,169 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Company {
-  id        String   @id @default(cuid())
-  name      String
-  kvk       String   @unique
-  plaats    String?
-  adres     String?
-  postcode  String?
-  telefoon  String?
-  iban      String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+// --- ENUMS ---
+enum UserStatus {
+  pending_approval
+  active
+  suspended
+}
 
-  users   User[]
-  jobs    PrintJob[]
-  offers  Offer[]
-  quotes  Quote[]
-  reviews Review[]
+enum CompanyRole {
+  owner
+  member
+}
+
+enum MaterialType {
+  SHEET
+  ROLL
+  LIQUID
+  OTHER
+}
+
+enum PricingModel {
+  PER_SQUARE_METER
+  PER_SHEET
+  PER_ROLL
+  PER_UNIT
+}
+
+enum PurchaseOrderStatus {
+  DRAFT
+  ORDERED
+  PARTIALLY_RECEIVED
+  RECEIVED
+  CANCELLED
+}
+
+enum SubscriptionPlan {
+  FREE
+  PRO
+  ENTERPRISE
+}
+
+enum CalculationItemType {
+  MATERIAL
+  MACHINE
+  LABOR
+  FINISHING
+  EXTERNAL
+}
+
+
+// --- HOOFD MODELLEN ---
+model Plan {
+  id          String       @id @default(cuid())
+  name        String       @unique
+  description String?
+  permissions Permission[]
+  companies   Company[]
+}
+
+model Company {
+  id                 String          @id @default(cuid())
+  name               String
+  kvk                String          @unique
+  plaats             String?
+  adres              String?
+  postcode           String?
+  telefoon           String?
+  iban               String?
+  createdAt          DateTime        @default(now())
+  updatedAt          DateTime        @updatedAt
+  stripeCustomerId   String?         @unique
+  subscriptionStatus String?
+  planId             String?
+  plan               Plan?           @relation(fields: [planId], references: [id])
+  users              User[]
+  jobs               PrintJob[]
+  offers             Offer[]
+  quotes             Quote[]
+  reviews            Review[]
+  materials          Material[]
+  suppliers          Supplier[]
+  purchaseOrders     PurchaseOrder[]
+  stockLocations     StockLocation[]
+  machines           Machine[]
+  finishings         Finishing[]
+  laborRates         LaborRate[]
 }
 
 model User {
-  id                      String   @id @default(cuid())
-  email                   String   @unique
-  passwordHash            String?
-  name                    String
-  status                  String   @default("pending_approval")
-  role                    String   @default("provider")
-  companyRole             String   @default("member")
-  emailVerified           Boolean  @default(false)
-  activationToken         String?  @unique
-  createdAt               DateTime @default(now())
-  updatedAt               DateTime @updatedAt
-  
-  companyId               String
-  company                 Company  @relation(fields: [companyId], references: [id])
+  id                String         @id @default(cuid())
+  email             String         @unique
+  passwordHash      String?
+  name              String
+  status            UserStatus     @default(pending_approval)
+  role              String         @default("provider")
+  companyRole       CompanyRole    @default(member)
+  emailVerified     Boolean        @default(false)
+  activationToken   String?        @unique
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @updatedAt
+  companyId         String
+  company           Company        @relation(fields: [companyId], references: [id])
+  permissions       Permission[]
+  assignedJobs      PrintJob[]     @relation("AssignedJobs")
+  assignedQuotes    Quote[]        @relation("AssignedQuotes")
+  submittedQuotes   Quote[]        @relation("SubmittedQuotes")
+  submittedOffers   Offer[]
+  createdJobs       PrintJob[]     @relation("CreatedJobs")
+  notifications     Notification[]
+}
 
-  // De "terug-links" voor de relaties
-  assignedJobs            PrintJob[] @relation("AssignedJobs")
-  assignedQuotes          Quote[]    @relation("AssignedQuotes")
-  submittedQuotes         Quote[]    @relation("SubmittedQuotes")
-  submittedOffers         Offer[]
-  createdJobs             PrintJob[] @relation("CreatedJobs")
-  notifications           Notification[]
+model Permission {
+  id          String @id @default(cuid())
+  name        String @unique
+  description String
+  plans       Plan[]
+  users       User[]
 }
 
 model PrintJob {
-  id                 String   @id @default(cuid())
-  jobNumber          String   @unique
-  title              String
-  description        String
-  quantity           Int
-  material           String
-  format             String?
-  deadline           DateTime?
-  quotingDeadline    DateTime?
-  status             String   @default("quoting")
-  isPublic           Boolean  @default(false)
-  reviewSubmitted    Boolean  @default(false)
-  createdAt          DateTime @default(now())
-  updatedAt          DateTime @updatedAt
-
-  companyId          String
-  company            Company  @relation(fields: [companyId], references: [id])
-  creatorId          String
-  creator            User     @relation("CreatedJobs", fields: [creatorId], references: [id])
-
-  assigneeId         String?
-  assignee           User?    @relation("AssignedJobs", fields: [assigneeId], references: [id])
-
-  winnerProviderId   String?
-  quotes             Quote[]
-  reviews            Review[]
-  productionSteps    ProductionStep[]
+  id               String           @id @default(cuid())
+  jobNumber        String           @unique
+  title            String
+  description      String
+  quantity         Int
+  material         String
+  format           String?
+  deadline         DateTime?
+  quotingDeadline  DateTime?
+  status           String           @default("quoting")
+  isPublic         Boolean          @default(false)
+  reviewSubmitted  Boolean          @default(false)
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+  companyId        String
+  company          Company          @relation(fields: [companyId], references: [id])
+  creatorId        String
+  creator          User             @relation("CreatedJobs", fields: [creatorId], references: [id])
+  assigneeId       String?
+  assignee         User?            @relation("AssignedJobs", fields: [assigneeId], references: [id])
+  winnerProviderId String?
+  quotes           Quote[]
+  reviews          Review[]
+  productionSteps  ProductionStep[]
 }
 
 model Quote {
-  id              String   @id @default(cuid())
-  quoteNumber     String   @unique
+  id              String      @id @default(cuid())
+  quoteNumber     String      @unique
   price           Float
   deliveryTime    String
   comments        String?
-  status          String   @default("offered")
-  createdAt       DateTime @default(now())
-  statusUpdatedAt DateTime @updatedAt
-
+  status          String      @default("offered")
+  createdAt       DateTime    @default(now())
+  statusUpdatedAt DateTime    @updatedAt
+  calculation     Calculation?
   jobId           String
-  job             PrintJob @relation(fields: [jobId], references: [id], onDelete: Cascade)
-  
+  job             PrintJob    @relation(fields: [jobId], references: [id], onDelete: Cascade)
   companyId       String
-  company         Company  @relation(fields: [companyId], references: [id])
+  company         Company     @relation(fields: [companyId], references: [id])
   submitterId     String
-  submitter       User     @relation("SubmittedQuotes", fields: [submitterId], references: [id])
-
+  submitter       User        @relation("SubmittedQuotes", fields: [submitterId], references: [id])
   assigneeId      String?
-  assignee        User?    @relation("AssignedQuotes", fields: [assigneeId], references: [id])
+  assignee        User?       @relation("AssignedQuotes", fields: [assigneeId], references: [id])
 }
 
 model Offer {
@@ -116,7 +185,6 @@ model Offer {
   capacityDetails String
   price           String
   createdAt       DateTime  @default(now())
-
   companyId       String
   company         Company   @relation(fields: [companyId], references: [id])
   creatorId       String
@@ -124,16 +192,14 @@ model Offer {
 }
 
 model Review {
-  id         String   @id @default(cuid())
-  rating     Int
-  comment    String?
-  createdAt  DateTime @default(now())
-
-  jobId      String
-  job        PrintJob @relation(fields: [jobId], references: [id], onDelete: Cascade)
-  
-  companyId  String
-  company    Company  @relation(fields: [companyId], references: [id])
+  id        String   @id @default(cuid())
+  rating    Int
+  comment   String?
+  createdAt DateTime @default(now())
+  jobId     String
+  job       PrintJob @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  companyId String
+  company   Company  @relation(fields: [companyId], references: [id])
 }
 
 model Notification {
@@ -141,7 +207,6 @@ model Notification {
   message   String
   isRead    Boolean  @default(false)
   createdAt DateTime @default(now())
-
   userId    String
   user      User     @relation(fields: [userId], references: [id])
 }
@@ -153,7 +218,138 @@ model ProductionStep {
   notes     String?
   order     Int
   createdAt DateTime @default(now())
-
   jobId     String
   job       PrintJob @relation(fields: [jobId], references: [id], onDelete: Cascade)
+}
+
+model Material {
+  id                 String              @id @default(cuid())
+  name               String
+  type               MaterialType
+  unit               String
+  thickness          String?
+  pricingModel       PricingModel
+  price              Float
+  sheetWidth_mm      Int?
+  sheetHeight_mm     Int?
+  rollWidth_mm       Int?
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+  companyId          String
+  company            Company             @relation(fields: [companyId], references: [id])
+  purchaseOrderItems PurchaseOrderItem[]
+  inventoryItems     Inventory[]
+}
+
+model Supplier {
+  id             String          @id @default(cuid())
+  name           String
+  contactPerson  String?
+  email          String?
+  phone          String?
+  address        String?
+  postcode       String?
+  city           String?
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  companyId      String
+  company        Company         @relation(fields: [companyId], references: [id])
+  purchaseOrders PurchaseOrder[]
+}
+
+model PurchaseOrder {
+  id               String              @id @default(cuid())
+  poNumber         String
+  status           PurchaseOrderStatus @default(DRAFT)
+  orderDate        DateTime            @default(now())
+  expectedDelivery DateTime?
+  notes            String?
+  createdAt        DateTime            @default(now())
+  updatedAt        DateTime            @updatedAt
+  companyId        String
+  company          Company             @relation(fields: [companyId], references: [id])
+  supplierId       String
+  supplier         Supplier            @relation(fields: [supplierId], references: [id])
+  items            PurchaseOrderItem[]
+}
+
+model PurchaseOrderItem {
+  id              String        @id @default(cuid())
+  quantity        Float
+  purchasePrice   Float
+  purchaseOrderId String
+  purchaseOrder   PurchaseOrder @relation(fields: [purchaseOrderId], references: [id])
+  materialId      String
+  material        Material      @relation(fields: [materialId], references: [id])
+}
+
+model StockLocation {
+  id             String      @id @default(cuid())
+  name           String
+  description    String?
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+  companyId      String
+  company        Company     @relation(fields: [companyId], references: [id])
+  inventoryItems Inventory[]
+}
+
+model Inventory {
+  id         String        @id @default(cuid())
+  quantity   Float
+  materialId String
+  material   Material      @relation(fields: [materialId], references: [id])
+  locationId String
+  location   StockLocation @relation(fields: [locationId], references: [id])
+
+  @@unique([materialId, locationId])
+}
+
+model Machine {
+  id               String @id @default(cuid())
+  name             String
+  setupTimeMinutes Int
+  runSpeedPerHour  Int
+  costPerHour      Float
+  companyId        String
+  company          Company  @relation(fields: [companyId], references: [id])
+}
+
+model Finishing {
+  id          String @id @default(cuid())
+  name        String
+  costPerItem Float
+  setupCost   Float
+  companyId   String
+  company     Company  @relation(fields: [companyId], references: [id])
+}
+
+model LaborRate {
+  id          String @id @default(cuid())
+  roleName    String
+  costPerHour Float
+  companyId   String
+  company     Company @relation(fields: [companyId], references: [id])
+}
+
+model Calculation {
+  id               String            @id @default(cuid())
+  totalCost        Float
+  marginPercentage Float
+  finalPrice       Float
+  notes            String?
+  quoteId          String            @unique
+  quote            Quote             @relation(fields: [quoteId], references: [id])
+  items            CalculationItem[]
+}
+
+model CalculationItem {
+  id            String              @id @default(cuid())
+  type          CalculationItemType
+  description   String
+  quantity      Float
+  unitCost      Float
+  totalCost     Float
+  calculationId String
+  calculation   Calculation         @relation(fields: [calculationId], references: [id])
 }
